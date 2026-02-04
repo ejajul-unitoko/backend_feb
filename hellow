@@ -1,0 +1,27 @@
+todo:
+media_assets fix 
+
+PORT=4000
+DATABASE_URL=postgresql://backend_user:backend_password@127.0.0.1:5435/unitoko_new_db_feb
+JWT_SECRET=your_super_secret_key
+
+# Email Configuration (Gmail SMTP) - Currently Active
+MAIL_PROVIDER=smtp
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=akkikohli01@gmail.com
+SMTP_PASS=yxxqazismhwcpxaa
+MAIL_FROM=UniToko <akkikohli01@gmail.com>
+
+# Email Settings
+EMAIL_ENABLED=true
+EMAIL_FROM_NAME=UniToko
+EMAIL_FROM_ADDRESS=akkikohli01@gmail.com
+
+# Admin Configuration
+ADMIN_APPROVER_EMAIL=ejajul@unitoko.com
+
+
+
+
+https://github.com/ejajul-unitoko/backend_feb.git
