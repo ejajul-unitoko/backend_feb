@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UTA - Admin Approval Flow</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 700px; margin: auto; }
+        .step { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        .hidden { display: none; }
+        code { background: #eee; padding: 2px 5px; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; font-size: 11px; }
+        input { padding: 8px; margin-bottom: 5px; }
+        button { padding: 8px 15px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔐 UTA (Admin) Flow</h1>
+    <p>Scope: <code>uta</code> (Admin Access Request -> Approval -> Login)</p>
+
+    <!-- STEP 1: REQUEST ACCESS -->
+    <div id="step1" class="step">
+        <h3>Step 1: Request Access (OTP)</h3>
+        <input type="email" id="email" placeholder="Enter your email" value="intern@unitoko.com" style="width: 100%;">
+        <br><br>
+        <button onclick="requestAccess()">Send OTP</button>
+        <button onclick="showPasswordLogin()" style="margin-left: 10px; background: #f8f9fa; border: 1px solid #ddd;">Login with Password</button>
+    </div>
+
+    <!-- PASSWORD LOGIN -->
+    <div id="stepPasswordLogin" class="step hidden" style="border-color: #17a2b8;">
+        <h3>🔑 Login with Email & Password</h3>
+        <input type="email" id="loginEmail" placeholder="Email" style="width: 100%;">
+        <input type="password" id="loginPassword" placeholder="Password" style="width: 100%;">
+        <br><br>
+        <button onclick="loginWithPassword()">Login</button>
+        <button onclick="hidePasswordLogin()">Cancel</button>
+    </div>
+
+    <!-- STEP 2: VERIFY OTP -->
+    <div id="step2" class="step hidden">
+        <h3>Step 2: Verify OTP</h3>
+        <p>Check your console/email for the OTP.</p>
+        <input type="text" id="otp" placeholder="Enter OTP" style="width: 100%;">
+        <br><br>
+        <button onclick="verifyOtp()">Verify & Submit Request</button>
+    </div>
+
+    <!-- STEP 3: PENDING APPROVAL -->
+    <div id="step3" class="step hidden">
+        <h3>Step 3: Awaiting Approval</h3>
+        <div style="background: #fff3cd; color: #856404; padding: 15px; border: 1px solid #ffeeba;">
+            <strong>⚠️ Pending Approval</strong>
+            <p>Your request has been submitted. The Super Admin must approve it.</p>
+        </div>
+        <p><i>(In real life, you wait for an email. For this test, check console for the Magic Link)</i></p>
+    </div>
+
+    <!-- STEP 4: DASHBOARD (After Login) -->
+    <div id="step4" class="step hidden" style="background: #e9ecef; color: #333; border-color: #ced4da;">
+        <h3>🎉 Admin Dashboard</h3>
+        <p>Welcome, <span id="username">User</span></p>
+
+        <!-- USER MANAGEMENT SECTION -->
+        <div style="background: #fff; padding: 15px; border-radius: 5px; margin-top: 20px;">
+            <h4>👥 User Management</h4>
+            
+            <div style="margin-bottom: 15px;">
+                <label>Filter by App Type:</label>
+                <select id="filterType">
+                    <option value="">All</option>
+                    <option value="uta">UTA (Admins)</option>
+                    <option value="utc">UTC (Customers)</option>
+                    <option value="utd">UTD (Drivers)</option>
+                    <option value="utb">UTB (Businesses)</option>
+                </select>
+                <button onclick="fetchUsers()">Fetch Users</button>
+            </div>
+
+            <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <thead style="background: #f8f9fa;">
+                    <tr>
+                        <th>Avatar</th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Type</th>
+                        <th>Roles</th>
+                        <th>Status</th>
+                        <th>Verified</th>
+                        <th>Created/Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <tr><td colspan="8" style="text-align:center;">No users loaded</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- EDIT USER MODAL -->
+    <div id="editUserModal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center;">
+        <div style="background:white; padding:20px; border-radius:8px; width:400px;">
+            <h3>Edit User</h3>
+            <input type="hidden" id="editUserId">
+            
+            <label style="font-size:12px;font-weight:bold;">Basic Info</label>
+            <input type="text" id="editName" placeholder="Name" style="width:100%; margin-bottom:5px;">
+            <input type="text" id="editEmail" placeholder="Email" style="width:100%; margin-bottom:5px;">
+            <input type="text" id="editPhone" placeholder="Phone" style="width:100%; margin-bottom:10px;">
+            
+            <label style="font-size:12px;font-weight:bold;">Type & Status</label>
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <select id="editScope" style="width:50%;">
+                    <option value="uta">UTA</option>
+                    <option value="utb">UTB</option>
+                    <option value="utc">UTC</option>
+                    <option value="utd">UTD</option>
+                </select>
+                <select id="editStatus" style="width:50%;">
+                    <option value="active">Active</option>
+                    <option value="pending">Pending</option>
+                    <option value="suspended">Suspended</option>
+                </select>
+            </div>
+
+            <label style="font-size:12px;font-weight:bold;">Verification</label>
+            <div style="margin-bottom:10px;">
+                <label><input type="checkbox" id="editEmailVerified"> Email Verified</label>
+                <label style="margin-left:10px;"><input type="checkbox" id="editPhoneVerified"> Phone Verified</label>
+            </div>
+
+            <label style="font-size:12px;font-weight:bold;">Roles (JSON Array)</label>
+            <input type="text" id="editRoles" placeholder='["staff", "admin"]' style="width:100%; margin-bottom:15px; font-family:monospace;">
+
+            <div style="display:flex; justify-content:space-between;">
+                <button onclick="closeEditModal()" style="background:#ccc;">Cancel</button>
+                <button onclick="saveUserChanges()" style="background:#28a745; color:white;">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <h3>Debug Log</h3>
+    <pre id="log">Logs will appear here...</pre>
+
+    <script>
+        const API_AUTH = 'http://localhost:4000/api/auth';
+        const API_ADMIN = 'http://localhost:4000/api/admin/users';
+        const SCOPE = 'uta';
+        let ACCESS_TOKEN = null;
+
+        function log(msg) {
+            document.getElementById('log').textContent = JSON.stringify(msg, null, 2);
+        }
+
+        // --- AUTH LOGIC (Existing) ---
+        async function requestAccess() {
+            const email = document.getElementById('email').value;
+            try {
+                const res = await fetch(`${API_AUTH}/admin/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-app-type': SCOPE },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                log(data);
+                if (res.ok) {
+                    document.getElementById('step1').classList.add('hidden');
+                    document.getElementById('step2').classList.remove('hidden');
+                }
+            } catch (err) { log(err); }
+        }
+
+        async function verifyOtp() {
+            const email = document.getElementById('email').value;
+            const otp = document.getElementById('otp').value;
+            try {
+                const res = await fetch(`${API_AUTH}/admin/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-app-type': SCOPE },
+                    body: JSON.stringify({ email, otp })
+                });
+                const data = await res.json();
+                log(data);
+                if (res.ok && data.accessToken) {
+                   showDashboard(data);
+                }
+            } catch (err) { log(err); }
+        }
+
+        function showPasswordLogin() {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('stepPasswordLogin').classList.remove('hidden');
+        }
+
+        function hidePasswordLogin() {
+            document.getElementById('stepPasswordLogin').classList.add('hidden');
+            document.getElementById('step1').classList.remove('hidden');
+        }
+
+        async function loginWithPassword() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            try {
+                const res = await fetch(`${API_AUTH}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-app-type': SCOPE },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                log(data);
+                if (res.ok) showDashboard(data);
+            } catch (err) { log(err); }
+        }
+
+        function showDashboard(data) {
+            ACCESS_TOKEN = data.accessToken;
+            document.querySelectorAll('.step').forEach(el => el.classList.add('hidden'));
+            document.getElementById('step4').classList.remove('hidden');
+            document.getElementById('username').textContent = data.user.name || data.user.email;
+        }
+
+        // --- USER MANAGEMENT LOGIC ---
+
+        async function fetchUsers() {
+            const type = document.getElementById('filterType').value;
+            let url = API_ADMIN;
+            if (type) url += `?type=${type}`;
+
+            try {
+                const res = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
+                });
+                const users = await res.json();
+                renderTable(users);
+            } catch (err) { log(err); }
+        }
+
+        function renderTable(users) {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+            
+            if (!users || users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No users found</td></tr>';
+                return;
+            }
+
+            users.forEach(user => {
+                const tr = document.createElement('tr');
+                // Parse roles if JSON string or array
+                let roles = user.roles || [];
+                if (typeof roles === 'string') {
+                    try { roles = JSON.parse(roles); } catch(e){}
+                }
+                const rolesStr = Array.isArray(roles) ? roles.join(', ') : '';
+                
+                const avatarImg = user.avatar_url 
+                    ? `<img src="${user.avatar_url}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">` 
+                    : '<div style="width:30px;height:30px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;">?</div>';
+
+                const verifiedStr = `
+                    <span title="Email Verified">${user.is_email_verified ? '📧✅' : '📧❌'}</span>
+                    <span title="Phone Verified">${user.is_phone_verified ? '📱✅' : '📱❌'}</span>
+                `;
+
+                const dates = `
+                    <div style="font-size:10px;">
+                        C: ${new Date(user.created_at).toLocaleString()}<br>
+                        U: ${new Date(user.updated_at).toLocaleString()}
+                    </div>
+                `;
+
+                tr.innerHTML = `
+                    <td>${avatarImg}</td>
+                    <td style="font-size:11px;">${user.id}</td>
+                    <td>${user.name || '-'}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || '-'}</td>
+                    <td>${user.scope}</td>
+                    <td>${rolesStr}</td>
+                    <td>${user.status}</td>
+                    <td>${verifiedStr}</td>
+                    <td>${dates}</td>
+                    <td>
+                        <button onclick='openEditModal(${JSON.stringify(user)})'>Edit</button>
+                        <button onclick='deleteUser("${user.id}")' style="color:red;">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- EDIT USER ---
+        function openEditModal(user) {
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editName').value = user.name || '';
+            document.getElementById('editEmail').value = user.email || '';
+            document.getElementById('editPhone').value = user.phone || '';
+            document.getElementById('editScope').value = user.scope;
+            document.getElementById('editStatus').value = user.status;
+            document.getElementById('editEmailVerified').checked = user.is_email_verified;
+            document.getElementById('editPhoneVerified').checked = user.is_phone_verified;
+            
+            // Roles
+            let roles = user.roles || [];
+            if (typeof roles === 'string') try { roles = JSON.parse(roles); } catch(e){}
+            document.getElementById('editRoles').value = JSON.stringify(roles);
+            
+            document.getElementById('editUserModal').style.display = 'flex'; 
+        }
+
+        function closeEditModal() {
+            document.getElementById('editUserModal').style.display = 'none';
+        }
+
+        async function saveUserChanges() {
+            const id = document.getElementById('editUserId').value;
+            
+            // Validate roles JSON
+            let roles = [];
+            try {
+                roles = JSON.parse(document.getElementById('editRoles').value);
+            } catch (e) {
+                alert('Invalid Roles JSON');
+                return;
+            }
+
+            const data = {
+                name: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value,
+                phone: document.getElementById('editPhone').value,
+                scope: document.getElementById('editScope').value,
+                status: document.getElementById('editStatus').value,
+                is_email_verified: document.getElementById('editEmailVerified').checked,
+                is_phone_verified: document.getElementById('editPhoneVerified').checked,
+                roles: roles 
+            };
+
+            try {
+                const res = await fetch(`${API_ADMIN}/${id}`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ACCESS_TOKEN}` 
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                log(result);
+                if (res.ok) {
+                    closeEditModal();
+                    fetchUsers(); // Refresh list
+                    alert('User updated!');
+                }
+            } catch (err) { log(err); }
+        }
+
+        // --- DELETE USER ---
+        async function deleteUser(id) {
+            if (!confirm('Are you sure you want to delete this user?')) return;
+
+            try {
+                const res = await fetch(`${API_ADMIN}/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
+                });
+                const result = await res.json();
+                log(result);
+                if (res.ok) {
+                    fetchUsers(); // Refresh list
+                }
+            } catch (err) { log(err); }
+        }
+    </script>
+</body>
+</html>

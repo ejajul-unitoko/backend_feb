@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgis/postgis:17-3.4-alpine
+    container_name: my_backend_postgres
+    environment:
+      POSTGRES_DB: unitoko_new_db_feb
+      POSTGRES_USER: backend_user
+      POSTGRES_PASSWORD: backend_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U backend_user -d unitoko_new_db_feb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - backend_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  backend_network:
+    driver: bridge
