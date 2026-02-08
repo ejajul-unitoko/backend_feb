@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business System - Test Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            max-width: 1400px;
+            margin: auto;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        .section {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            color: #007bff;
+            font-size: 18px;
+        }
+
+        .utb-section {
+            border-left: 4px solid #28a745;
+        }
+
+        .uta-section {
+            border-left: 4px solid #dc3545;
+        }
+
+        .auth-section {
+            border-left: 4px solid #ffc107;
+        }
+
+        input,
+        select,
+        textarea {
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        textarea {
+            width: calc(100% - 20px);
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            margin: 5px 5px 5px 0;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button.danger {
+            background: #dc3545;
+        }
+
+        button.danger:hover {
+            background: #c82333;
+        }
+
+        button.success {
+            background: #28a745;
+        }
+
+        button.success:hover {
+            background: #218838;
+        }
+
+        button.warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        button.warning:hover {
+            background: #e0a800;
+        }
+
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            overflow-x: auto;
+            font-size: 12px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            max-height: 400px;
+        }
+
+        .response {
+            margin-top: 10px;
+        }
+
+        .success-response {
+            border-left: 4px solid #28a745;
+        }
+
+        .error-response {
+            border-left: 4px solid #dc3545;
+        }
+
+        .token-display {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+
+        .edge-case-badge {
+            display: inline-block;
+            background: #ffc107;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🏢 Business System - Test Dashboard</h1>
+    <p>Comprehensive testing for Business Registration, Branches, Branch Users, and Admin KYC Verification</p>
+
+    <!-- Authentication Section -->
+    <div class="section auth-section">
+        <h2>🔐 Authentication</h2>
+        <div class="info-box">
+            <strong>Setup:</strong> Use OTP-based registration/login or password login. System uses
+            <code>x-app-type</code> header for scope.
+        </div>
+
+        <h3>Step 1: Register / Login with OTP</h3>
+        <label>Email:</label>
+        <input type="email" id="email" placeholder="Email" value="business@test.com">
+
+        <label>Scope:</label>
+        <select id="scope">
+            <option value="utb">UTB (Business)</option>
+            <option value="uta">UTA (Admin)</option>
+        </select>
+
+        <button onclick="sendOtp()">Send OTP</button>
+        <button class="warning" onclick="showPasswordLogin()">Login with Password</button>
+
+        <div id="otpSection" style="display:none; margin-top: 15px;">
+            <h3>Step 2: Verify OTP</h3>
+            <label>OTP Code (check console):</label>
+            <input type="text" id="otp" placeholder="Enter OTP">
+            <button onclick="verifyOtp()">Verify & Login</button>
+        </div>
+
+        <div id="profileSection"
+            style="display:none; margin-top: 15px; background: #fff3cd; padding: 15px; border-radius: 4px; border: 1px solid #ffc107;">
+            <h3>⚠️ Complete Your Profile</h3>
+            <div class="info-box">
+                <strong>Profile Incomplete:</strong> Please provide your details to continue.
+            </div>
+
+            <label>Full Name:</label>
+            <input type="text" id="profileName" placeholder="Your Full Name">
+
+            <label>Phone:</label>
+            <input type="text" id="profilePhone" placeholder="Your Phone Number">
+
+            <label>Set Password (optional, for future logins):</label>
+            <input type="password" id="profilePassword" placeholder="Create a password">
+
+            <button class="success" onclick="completeProfile()">Save Profile & Continue</button>
+        </div>
+
+        <div id="passwordSection"
+            style="display:none; margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 4px;">
+            <h3>🔑 Login with Password</h3>
+            <label>Email:</label>
+            <input type="email" id="loginEmail" placeholder="Email" value="business@test.com">
+
+            <label>Password:</label>
+            <input type="password" id="loginPassword" placeholder="Password" value="password123">
+
+            <label>Scope:</label>
+            <select id="loginScope">
+                <option value="utb">UTB (Business)</option>
+                <option value="uta">UTA (Admin)</option>
+            </select>
+
+            <button onclick="loginWithPassword()">Login</button>
+            <button onclick="hidePasswordLogin()">Cancel</button>
+        </div>
+
+        <div id="tokenDisplay" class="token-display" style="display:none;">
+            <strong>JWT Token:</strong> <span id="tokenValue"></span>
+        </div>
+
+        <div id="authResponse" class="response"></div>
+    </div>
+
+
+    <!-- UTB: Business Management -->
+    <div class="section utb-section">
+        <h2>🏪 UTB: Business Management</h2>
+
+        <h3>Get My Business <span class="edge-case-badge">Edge Case 2</span></h3>
+        <div class="info-box">
+            Tests duplicate business check. Returns exists:true if business already registered.
+        </div>
+        <button onclick="getMyBusiness()">Get My Business</button>
+        <div id="getBusinessResponse" class="response"></div>
+
+        <h3>Register Business <span class="edge-case-badge">Edge Case 1</span> <span class="edge-case-badge">Edge Case
+                6</span></h3>
+        <div class="info-box">
+            Auto-creates default branch (Edge Case 1). Can link to multiple markets (Edge Case 6).
+        </div>
+        <label>Legal Name:</label>
+        <input type="text" id="legalName" value="Test Business Pvt Ltd">
+
+        <label>Display Name:</label>
+        <input type="text" id="displayName" value="Test Business">
+
+        <label>Business Type:</label>
+        <select id="businessType">
+            <option value="proprietorship">Proprietorship</option>
+            <option value="partnership">Partnership</option>
+            <option value="llp">LLP</option>
+            <option value="private_limited">Private Limited</option>
+        </select>
+
+        <label>PAN (10 chars, e.g., ABCDE1234F):</label>
+        <input type="text" id="pan" value="ABCDE1234F" maxlength="10">
+
+        <label>GSTIN (15 chars, optional):</label>
+        <input type="text" id="gstin" value="22ABCDE1234F1Z5" maxlength="15">
+
+        <label>Registered Address:</label>
+        <textarea id="registeredAddress" rows="3">123 Test Street, Delhi, 110001</textarea>
+
+        <label>Market IDs (comma-separated UUIDs, optional):</label>
+        <input type="text" id="marketIds" placeholder="uuid1,uuid2,uuid3">
+
+        <button onclick="registerBusiness()">Register Business</button>
+        <div id="registerBusinessResponse" class="response"></div>
+
+        <h3>Update Business</h3>
+        <label>Business ID:</label>
+        <input type="text" id="updateBusinessId" placeholder="Business UUID">
+
+        <label>Display Name:</label>
+        <input type="text" id="updateDisplayName" placeholder="New Display Name">
+
+        <button onclick="updateBusiness()">Update Business</button>
+        <div id="updateBusinessResponse" class="response"></div>
+
+        <h3>Get Business Status</h3>
+        <label>Business ID:</label>
+        <input type="text" id="statusBusinessId" placeholder="Business UUID">
+        <button onclick="getBusinessStatus()">Get KYC Status</button>
+        <div id="statusResponse" class="response"></div>
+
+        <h3>Get Business Markets</h3>
+        <label>Business ID:</label>
+        <input type="text" id="marketsBusinessId" placeholder="Business UUID">
+        <button onclick="getBusinessMarkets()">Get Markets</button>
+        <div id="marketsResponse" class="response"></div>
+    </div>
+
+    <!-- UTB: Branch Management -->
+    <div class="section utb-section">
+        <h2>🏬 UTB: Branch Management</h2>
+
+        <h3>Get My Branches <span class="edge-case-badge">Edge Case 5</span></h3>
+        <div class="info-box">
+            Owner gets all branches, managers get only assigned branches.
+        </div>
+        <button onclick="getMyBranches()">Get My Branches</button>
+        <div id="getBranchesResponse" class="response"></div>
+
+        <h3>Create Branch</h3>
+        <label>Business ID:</label>
+        <input type="text" id="branchBusinessId" placeholder="Business UUID">
+
+        <label>Branch Name:</label>
+        <input type="text" id="branchName" value="Main Branch">
+
+        <label>Address:</label>
+        <textarea id="branchAddress" rows="3">456 Branch Street, Delhi, 110002</textarea>
+
+        <label>Latitude (optional):</label>
+        <input type="text" id="branchLat" placeholder="28.6139">
+
+        <label>Longitude (optional):</label>
+        <input type="text" id="branchLon" placeholder="77.2090">
+
+        <button onclick="createBranch()">Create Branch</button>
+        <div id="createBranchResponse" class="response"></div>
+
+        <h3>Update Branch</h3>
+        <label>Branch ID:</label>
+        <input type="text" id="updateBranchId" placeholder="Branch UUID">
+
+        <label>New Name:</label>
+        <input type="text" id="updateBranchName" placeholder="Updated Branch Name">
+
+        <button onclick="updateBranch()">Update Branch</button>
+        <div id="updateBranchResponse" class="response"></div>
+
+        <h3>Toggle Branch Status</h3>
+        <label>Branch ID:</label>
+        <input type="text" id="toggleBranchId" placeholder="Branch UUID">
+        <button onclick="toggleBranchStatus()">Toggle Active/Inactive</button>
+        <div id="toggleBranchResponse" class="response"></div>
+
+        <h3>Delete Branch</h3>
+        <label>Branch ID:</label>
+        <input type="text" id="deleteBranchId" placeholder="Branch UUID">
+        <button class="danger" onclick="deleteBranch()">Delete Branch</button>
+        <div id="deleteBranchResponse" class="response"></div>
+    </div>
+
+    <!-- UTB: Branch User Management -->
+    <div class="section utb-section">
+        <h2>👥 UTB: Branch User Management</h2>
+
+        <h3>Assign User to Branch <span class="edge-case-badge">Edge Case 3</span></h3>
+        <div class="info-box">
+            Creates user if email doesn't exist. User remains pending until first login.
+        </div>
+        <label>Branch ID:</label>
+        <input type="text" id="assignBranchId" placeholder="Branch UUID">
+
+        <label>Email:</label>
+        <input type="email" id="assignEmail" value="manager@test.com">
+
+        <label>Role:</label>
+        <select id="assignRole">
+            <option value="manager">Manager</option>
+            <option value="staff">Staff</option>
+        </select>
+
+        <label>Password:</label>
+        <input type="password" id="assignPassword" value="manager123">
+
+        <button onclick="assignUser()">Assign User</button>
+        <div id="assignUserResponse" class="response"></div>
+
+        <h3>Get Branch Users</h3>
+        <label>Branch ID:</label>
+        <input type="text" id="getBranchUsersId" placeholder="Branch UUID">
+        <button onclick="getBranchUsers()">Get Users</button>
+        <div id="getBranchUsersResponse" class="response"></div>
+
+        <h3>Update User Role</h3>
+        <label>Branch User ID:</label>
+        <input type="text" id="updateRoleId" placeholder="Branch User UUID">
+
+        <label>New Role:</label>
+        <select id="updateRole">
+            <option value="manager">Manager</option>
+            <option value="staff">Staff</option>
+        </select>
+
+        <button onclick="updateUserRole()">Update Role</button>
+        <div id="updateRoleResponse" class="response"></div>
+
+        <h3>Revoke User Access</h3>
+        <label>Branch User ID:</label>
+        <input type="text" id="revokeUserId" placeholder="Branch User UUID">
+        <button class="danger" onclick="revokeUser()">Revoke Access</button>
+        <div id="revokeUserResponse" class="response"></div>
+    </div>
+
+    <!-- UTA: Admin Business Management -->
+    <div class="section uta-section">
+        <h2>🛡️ UTA: Admin Business Management</h2>
+        <div class="info-box">
+            <strong>Note:</strong> Login as UTA admin first and ensure super_admin role has businesses:* permissions.
+        </div>
+
+        <h3>Get All Businesses</h3>
+        <label>KYC Status Filter (optional):</label>
+        <select id="adminKycFilter">
+            <option value="">All</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+        </select>
+
+        <label>Status Filter (optional):</label>
+        <select id="adminStatusFilter">
+            <option value="">All</option>
+            <option value="active">Active</option>
+            <option value="suspended">Suspended</option>
+        </select>
+
+        <button onclick="getAllBusinesses()">Get All Businesses</button>
+        <div id="getAllBusinessesResponse" class="response"></div>
+
+        <h3>Get Business Details</h3>
+        <label>Business ID:</label>
+        <input type="text" id="adminBusinessId" placeholder="Business UUID">
+        <button onclick="getBusinessDetails()">Get Details</button>
+        <div id="businessDetailsResponse" class="response"></div>
+
+        <h3>Verify Business KYC <span class="edge-case-badge">Edge Case 4</span></h3>
+        <div class="info-box">
+            Approve or reject KYC. Rejection requires remarks.
+        </div>
+        <label>Business ID:</label>
+        <input type="text" id="verifyBusinessId" placeholder="Business UUID">
+
+        <label>KYC Status:</label>
+        <select id="verifyKycStatus">
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+        </select>
+
+        <label>Remarks (required for rejection):</label>
+        <textarea id="verifyRemarks" rows="3" placeholder="Reason for rejection or approval notes"></textarea>
+
+        <button class="success" onclick="verifyBusiness()">Verify KYC</button>
+        <div id="verifyBusinessResponse" class="response"></div>
+
+        <h3>Suspend Business</h3>
+        <label>Business ID:</label>
+        <input type="text" id="suspendBusinessId" placeholder="Business UUID">
+
+        <label>Suspension Reason:</label>
+        <textarea id="suspendReason" rows="3" placeholder="Reason for suspension"></textarea>
+
+        <button class="danger" onclick="suspendBusiness()">Suspend Business</button>
+        <div id="suspendBusinessResponse" class="response"></div>
+
+        <h3>Activate Business</h3>
+        <label>Business ID:</label>
+        <input type="text" id="activateBusinessId" placeholder="Business UUID">
+        <button class="success" onclick="activateBusiness()">Activate Business</button>
+        <div id="activateBusinessResponse" class="response"></div>
+
+        <h3>Search Businesses</h3>
+        <label>Search Query:</label>
+        <input type="text" id="searchQuery" placeholder="Business name">
+        <button onclick="searchBusinesses()">Search</button>
+        <div id="searchBusinessesResponse" class="response"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000/api';
+        let authToken = '';
+
+        // Helper function to display response
+        function displayResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<pre class="${isError ? 'error-response' : 'success-response'}">${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        // Helper function to make API calls
+        async function apiCall(endpoint, method = 'GET', body = null, useAuth = true) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (useAuth && authToken) {
+                options.headers['Authorization'] = `Bearer ${authToken}`;
+            }
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                const data = await response.json();
+                return { data, status: response.status, isError: !response.ok };
+            } catch (error) {
+                return { data: { error: error.message }, status: 0, isError: true };
+            }
+        }
+
+        // Authentication Functions
+        async function sendOtp() {
+            const email = document.getElementById('email').value;
+            const scope = document.getElementById('scope').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/otp/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-app-type': scope
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+                displayResponse('authResponse', data, !response.ok);
+
+                if (response.ok) {
+                    document.getElementById('otpSection').style.display = 'block';
+                }
+            } catch (error) {
+                displayResponse('authResponse', { error: error.message }, true);
+            }
+        }
+
+        async function verifyOtp() {
+            const email = document.getElementById('email').value;
+            const otp = document.getElementById('otp').value;
+            const scope = document.getElementById('scope').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/otp/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-app-type': scope
+                    },
+                    body: JSON.stringify({ email, otp })
+                });
+
+                const data = await response.json();
+                displayResponse('authResponse', data, !response.ok);
+
+                if (response.ok && data.accessToken) {
+                    authToken = data.accessToken;
+
+                    // Check if profile is complete
+                    if (data.is_profile_complete === false) {
+                        // Show profile completion form
+                        document.getElementById('otpSection').style.display = 'none';
+                        document.getElementById('profileSection').style.display = 'block';
+                    } else {
+                        // Profile complete, show token
+                        document.getElementById('tokenDisplay').style.display = 'block';
+                        document.getElementById('tokenValue').textContent = authToken;
+                        document.getElementById('otpSection').style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                displayResponse('authResponse', { error: error.message }, true);
+            }
+        }
+
+        async function completeProfile() {
+            const name = document.getElementById('profileName').value;
+            const phone = document.getElementById('profilePhone').value;
+            const password = document.getElementById('profilePassword').value;
+            const scope = document.getElementById('scope').value;
+
+            if (!name || !phone) {
+                alert('Please provide both name and phone number');
+                return;
+            }
+
+            try {
+                // Update profile
+                const profileResponse = await fetch(`${API_BASE}/auth/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`,
+                        'x-app-type': scope
+                    },
+                    body: JSON.stringify({ name, phone })
+                });
+
+                const profileData = await profileResponse.json();
+                displayResponse('authResponse', profileData, !profileResponse.ok);
+
+                // If password provided, set it
+                if (password && profileResponse.ok) {
+                    const passwordResponse = await fetch(`${API_BASE}/auth/password/set`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`,
+                            'x-app-type': scope
+                        },
+                        body: JSON.stringify({ password })
+                    });
+
+                    const passwordData = await passwordResponse.json();
+                    console.log('Password set:', passwordData);
+                }
+
+                if (profileResponse.ok) {
+                    // Hide profile section, show token
+                    document.getElementById('profileSection').style.display = 'none';
+                    document.getElementById('tokenDisplay').style.display = 'block';
+                    document.getElementById('tokenValue').textContent = authToken;
+
+                    displayResponse('authResponse', {
+                        success: true,
+                        message: 'Profile completed successfully!',
+                        user: profileData.user
+                    }, false);
+                }
+            } catch (error) {
+                displayResponse('authResponse', { error: error.message }, true);
+            }
+        }
+
+        function showPasswordLogin() {
+            document.getElementById('passwordSection').style.display = 'block';
+        }
+
+        function hidePasswordLogin() {
+            document.getElementById('passwordSection').style.display = 'none';
+        }
+
+        async function loginWithPassword() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const scope = document.getElementById('loginScope').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-app-type': scope
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                displayResponse('authResponse', data, !response.ok);
+
+                if (response.ok && data.accessToken) {
+                    authToken = data.accessToken;
+                    document.getElementById('tokenDisplay').style.display = 'block';
+                    document.getElementById('tokenValue').textContent = authToken;
+                    document.getElementById('passwordSection').style.display = 'none';
+                }
+            } catch (error) {
+                displayResponse('authResponse', { error: error.message }, true);
+            }
+        }
+
+
+        // UTB: Business Management
+        async function getMyBusiness() {
+            const result = await apiCall('/utb/business');
+            displayResponse('getBusinessResponse', result.data, result.isError);
+        }
+
+        async function registerBusiness() {
+            const marketIdsStr = document.getElementById('marketIds').value;
+            const marketIds = marketIdsStr ? marketIdsStr.split(',').map(id => id.trim()) : [];
+
+            const result = await apiCall('/utb/business', 'POST', {
+                legal_name: document.getElementById('legalName').value,
+                display_name: document.getElementById('displayName').value,
+                business_type: document.getElementById('businessType').value,
+                pan: document.getElementById('pan').value,
+                gstin: document.getElementById('gstin').value || null,
+                registered_address: document.getElementById('registeredAddress').value,
+                market_ids: marketIds.length > 0 ? marketIds : undefined
+            });
+
+            displayResponse('registerBusinessResponse', result.data, result.isError);
+        }
+
+        async function updateBusiness() {
+            const businessId = document.getElementById('updateBusinessId').value;
+            const result = await apiCall(`/utb/business/${businessId}`, 'PUT', {
+                display_name: document.getElementById('updateDisplayName').value
+            });
+
+            displayResponse('updateBusinessResponse', result.data, result.isError);
+        }
+
+        async function getBusinessStatus() {
+            const businessId = document.getElementById('statusBusinessId').value;
+            const result = await apiCall(`/utb/business/${businessId}/status`);
+            displayResponse('statusResponse', result.data, result.isError);
+        }
+
+        async function getBusinessMarkets() {
+            const businessId = document.getElementById('marketsBusinessId').value;
+            const result = await apiCall(`/utb/business/${businessId}/markets`);
+            displayResponse('marketsResponse', result.data, result.isError);
+        }
+
+        // UTB: Branch Management
+        async function getMyBranches() {
+            const result = await apiCall('/utb/branches');
+            displayResponse('getBranchesResponse', result.data, result.isError);
+        }
+
+        async function createBranch() {
+            const lat = document.getElementById('branchLat').value;
+            const lon = document.getElementById('branchLon').value;
+
+            const result = await apiCall('/utb/branches', 'POST', {
+                business_id: document.getElementById('branchBusinessId').value,
+                name: document.getElementById('branchName').value,
+                address: document.getElementById('branchAddress').value,
+                latitude: lat ? parseFloat(lat) : null,
+                longitude: lon ? parseFloat(lon) : null
+            });
+
+            displayResponse('createBranchResponse', result.data, result.isError);
+        }
+
+        async function updateBranch() {
+            const branchId = document.getElementById('updateBranchId').value;
+            const result = await apiCall(`/utb/branches/${branchId}`, 'PUT', {
+                name: document.getElementById('updateBranchName').value
+            });
+
+            displayResponse('updateBranchResponse', result.data, result.isError);
+        }
+
+        async function toggleBranchStatus() {
+            const branchId = document.getElementById('toggleBranchId').value;
+            const result = await apiCall(`/utb/branches/${branchId}/toggle-status`, 'PATCH');
+            displayResponse('toggleBranchResponse', result.data, result.isError);
+        }
+
+        async function deleteBranch() {
+            const branchId = document.getElementById('deleteBranchId').value;
+            if (!confirm('Are you sure you want to delete this branch?')) return;
+
+            const result = await apiCall(`/utb/branches/${branchId}`, 'DELETE');
+            displayResponse('deleteBranchResponse', result.data, result.isError);
+        }
+
+        // UTB: Branch User Management
+        async function assignUser() {
+            const result = await apiCall(`/utb/branches/${document.getElementById('assignBranchId').value}/users`, 'POST', {
+                email: document.getElementById('assignEmail').value,
+                role: document.getElementById('assignRole').value,
+                password: document.getElementById('assignPassword').value
+            });
+
+            displayResponse('assignUserResponse', result.data, result.isError);
+        }
+
+        async function getBranchUsers() {
+            const branchId = document.getElementById('getBranchUsersId').value;
+            const result = await apiCall(`/utb/branches/${branchId}/users`);
+            displayResponse('getBranchUsersResponse', result.data, result.isError);
+        }
+
+        async function updateUserRole() {
+            const branchUserId = document.getElementById('updateRoleId').value;
+            const result = await apiCall(`/utb/branch-users/${branchUserId}/role`, 'PUT', {
+                role: document.getElementById('updateRole').value
+            });
+
+            displayResponse('updateRoleResponse', result.data, result.isError);
+        }
+
+        async function revokeUser() {
+            const branchUserId = document.getElementById('revokeUserId').value;
+            if (!confirm('Are you sure you want to revoke this user\'s access?')) return;
+
+            const result = await apiCall(`/utb/branch-users/${branchUserId}/revoke`, 'PATCH');
+            displayResponse('revokeUserResponse', result.data, result.isError);
+        }
+
+        // UTA: Admin Business Management
+        async function getAllBusinesses() {
+            const kycStatus = document.getElementById('adminKycFilter').value;
+            const status = document.getElementById('adminStatusFilter').value;
+
+            let query = '';
+            if (kycStatus) query += `?kyc_status=${kycStatus}`;
+            if (status) query += `${query ? '&' : '?'}status=${status}`;
+
+            const result = await apiCall(`/admin/businesses${query}`);
+            displayResponse('getAllBusinessesResponse', result.data, result.isError);
+        }
+
+        async function getBusinessDetails() {
+            const businessId = document.getElementById('adminBusinessId').value;
+            const result = await apiCall(`/admin/businesses/${businessId}`);
+            displayResponse('businessDetailsResponse', result.data, result.isError);
+        }
+
+        async function verifyBusiness() {
+            const businessId = document.getElementById('verifyBusinessId').value;
+            const result = await apiCall(`/admin/businesses/${businessId}/verify`, 'POST', {
+                kyc_status: document.getElementById('verifyKycStatus').value,
+                kyc_remarks: document.getElementById('verifyRemarks').value || null
+            });
+
+            displayResponse('verifyBusinessResponse', result.data, result.isError);
+        }
+
+        async function suspendBusiness() {
+            const businessId = document.getElementById('suspendBusinessId').value;
+            if (!confirm('Are you sure you want to suspend this business?')) return;
+
+            const result = await apiCall(`/admin/businesses/${businessId}/suspend`, 'PATCH', {
+                reason: document.getElementById('suspendReason').value
+            });
+
+            displayResponse('suspendBusinessResponse', result.data, result.isError);
+        }
+
+        async function activateBusiness() {
+            const businessId = document.getElementById('activateBusinessId').value;
+            const result = await apiCall(`/admin/businesses/${businessId}/activate`, 'PATCH');
+            displayResponse('activateBusinessResponse', result.data, result.isError);
+        }
+
+        async function searchBusinesses() {
+            const query = document.getElementById('searchQuery').value;
+            const result = await apiCall(`/admin/businesses/search?q=${encodeURIComponent(query)}`);
+            displayResponse('searchBusinessesResponse', result.data, result.isError);
+        }
+    </script>
+</body>
+
+</html>

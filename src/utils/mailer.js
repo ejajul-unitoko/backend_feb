@@ -4,7 +4,7 @@ import nodemailer from 'nodemailer';
 const createTransporter = () => {
     // For V0, we use SMTP (Gmail) as configured in .env
     // In production, you might switch to SendGrid/SES via MAIL_PROVIDER env
-    
+
     return nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
         port: parseInt(process.env.SMTP_PORT || '587'),
@@ -21,6 +21,7 @@ const sendEmail = async ({ to, subject, html }) => {
         if (process.env.EMAIL_ENABLED !== 'true') {
             console.log('⚠️ Email is disabled. Logging instead:');
             console.log(`To: ${to}, Subject: ${subject}`);
+            console.log(`Body: ${html}`);
             return;
         }
 

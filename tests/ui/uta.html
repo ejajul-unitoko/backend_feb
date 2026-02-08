@@ -1,19 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UTA - Admin Approval Flow</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; max-width: 700px; margin: auto; }
-        .step { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        .hidden { display: none; }
-        code { background: #eee; padding: 2px 5px; }
-        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; font-size: 11px; }
-        input { padding: 8px; margin-bottom: 5px; }
-        button { padding: 8px 15px; cursor: pointer; }
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        .step {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        code {
+            background: #eee;
+            padding: 2px 5px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+            font-size: 11px;
+        }
+
+        input {
+            padding: 8px;
+            margin-bottom: 5px;
+        }
+
+        button {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
     </style>
 </head>
+
 <body>
     <h1>🔐 UTA (Admin) Flow</h1>
     <p>Scope: <code>uta</code> (Admin Access Request -> Approval -> Login)</p>
@@ -24,7 +58,8 @@
         <input type="email" id="email" placeholder="Enter your email" value="intern@unitoko.com" style="width: 100%;">
         <br><br>
         <button onclick="requestAccess()">Send OTP</button>
-        <button onclick="showPasswordLogin()" style="margin-left: 10px; background: #f8f9fa; border: 1px solid #ddd;">Login with Password</button>
+        <button onclick="showPasswordLogin()"
+            style="margin-left: 10px; background: #f8f9fa; border: 1px solid #ddd;">Login with Password</button>
     </div>
 
     <!-- PASSWORD LOGIN -->
@@ -64,7 +99,7 @@
         <!-- USER MANAGEMENT SECTION -->
         <div style="background: #fff; padding: 15px; border-radius: 5px; margin-top: 20px;">
             <h4>👥 User Management</h4>
-            
+
             <div style="margin-bottom: 15px;">
                 <label>Filter by App Type:</label>
                 <select id="filterType">
@@ -94,23 +129,26 @@
                     </tr>
                 </thead>
                 <tbody id="userTableBody">
-                    <tr><td colspan="8" style="text-align:center;">No users loaded</td></tr>
+                    <tr>
+                        <td colspan="8" style="text-align:center;">No users loaded</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     <!-- EDIT USER MODAL -->
-    <div id="editUserModal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center;">
+    <div id="editUserModal" class="hidden"
+        style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center;">
         <div style="background:white; padding:20px; border-radius:8px; width:400px;">
             <h3>Edit User</h3>
             <input type="hidden" id="editUserId">
-            
+
             <label style="font-size:12px;font-weight:bold;">Basic Info</label>
             <input type="text" id="editName" placeholder="Name" style="width:100%; margin-bottom:5px;">
             <input type="text" id="editEmail" placeholder="Email" style="width:100%; margin-bottom:5px;">
             <input type="text" id="editPhone" placeholder="Phone" style="width:100%; margin-bottom:10px;">
-            
+
             <label style="font-size:12px;font-weight:bold;">Type & Status</label>
             <div style="display:flex; gap:10px; margin-bottom:10px;">
                 <select id="editScope" style="width:50%;">
@@ -132,8 +170,16 @@
                 <label style="margin-left:10px;"><input type="checkbox" id="editPhoneVerified"> Phone Verified</label>
             </div>
 
-            <label style="font-size:12px;font-weight:bold;">Roles (JSON Array)</label>
-            <input type="text" id="editRoles" placeholder='["staff", "admin"]' style="width:100%; margin-bottom:15px; font-family:monospace;">
+            <label style="font-size:12px;font-weight:bold;">Role</label>
+            <select id="editRoleSelect" style="width:100%; margin-bottom:15px;">
+                <option value="">(No Role)</option>
+                <option value="super_admin">Super Admin (UTA)</option>
+                <option value="staff_admin">Staff Admin (UTA)</option>
+                <option value="business_owner">Business Owner (UTB)</option>
+                <option value="business_manager">Business Manager (UTB)</option>
+                <option value="rider">Rider (UTD)</option>
+                <option value="customer">Customer (UTC)</option>
+            </select>
 
             <div style="display:flex; justify-content:space-between;">
                 <button onclick="closeEditModal()" style="background:#ccc;">Cancel</button>
@@ -150,6 +196,7 @@
         const API_ADMIN = 'http://localhost:4000/api/admin/users';
         const SCOPE = 'uta';
         let ACCESS_TOKEN = null;
+        let CURRENT_USER_ROLES = [];
 
         function log(msg) {
             document.getElementById('log').textContent = JSON.stringify(msg, null, 2);
@@ -185,7 +232,7 @@
                 const data = await res.json();
                 log(data);
                 if (res.ok && data.accessToken) {
-                   showDashboard(data);
+                    showDashboard(data);
                 }
             } catch (err) { log(err); }
         }
@@ -217,9 +264,19 @@
 
         function showDashboard(data) {
             ACCESS_TOKEN = data.accessToken;
+            // Capture roles (handling object or array structure if needed, assuming array of role names or objects)
+            // If the backend returns detailed role objects, we map to names. Checking earlier scripts setup... 
+            // The DB scripts assigned roles. The login response usually includes user { ... roles: [...] }
+            // Let's assume user.roles is an array of strings or objects. 
+            // Ideally we'd fix this based on actual API response, but safe bet is:
+            // AuthService returns roles at top level: { user, roles: [...], ... }
+            let roles = data.roles || data.user.roles || [];
+            // If roles are objects { name: 'super_admin' }, map them. If strings, keep them.
+            CURRENT_USER_ROLES = roles.map(r => (typeof r === 'object' ? r.name : r));
+
             document.querySelectorAll('.step').forEach(el => el.classList.add('hidden'));
             document.getElementById('step4').classList.remove('hidden');
-            document.getElementById('username').textContent = data.user.name || data.user.email;
+            document.getElementById('username').textContent = `${data.user.name || data.user.email} (${CURRENT_USER_ROLES.join(', ')})`;
         }
 
         // --- USER MANAGEMENT LOGIC ---
@@ -241,23 +298,32 @@
         function renderTable(users) {
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '';
-            
+
             if (!users || users.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">No users found</td></tr>';
                 return;
             }
 
+            const isSuperAdmin = CURRENT_USER_ROLES.includes('super_admin');
+
             users.forEach(user => {
+                // If staff_admin (not super_admin), HIDE 'uta' users
+                if (!isSuperAdmin && user.scope === 'uta') {
+                    return; // Skip this row
+                }
+
                 const tr = document.createElement('tr');
                 // Parse roles if JSON string or array
                 let roles = user.roles || [];
                 if (typeof roles === 'string') {
-                    try { roles = JSON.parse(roles); } catch(e){}
+                    try { roles = JSON.parse(roles); } catch (e) { }
                 }
-                const rolesStr = Array.isArray(roles) ? roles.join(', ') : '';
-                
-                const avatarImg = user.avatar_url 
-                    ? `<img src="${user.avatar_url}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">` 
+                // If roles are objects, map to names for display
+                const roleNames = roles.map(r => (typeof r === 'object' ? r.name : r));
+                const rolesStr = roleNames.join(', ');
+
+                const avatarImg = user.avatar_url
+                    ? `<img src="${user.avatar_url}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">`
                     : '<div style="width:30px;height:30px;border-radius:50%;background:#eee;display:flex;align-items:center;justify-content:center;">?</div>';
 
                 const verifiedStr = `
@@ -272,6 +338,11 @@
                     </div>
                 `;
 
+                // DELETE BUTTON LOGIC: Only show if Super Admin
+                const deleteBtn = isSuperAdmin
+                    ? `<button onclick='deleteUser("${user.id}")' style="color:red; margin-left:5px;">Delete</button>`
+                    : '';
+
                 tr.innerHTML = `
                     <td>${avatarImg}</td>
                     <td style="font-size:11px;">${user.id}</td>
@@ -285,7 +356,7 @@
                     <td>${dates}</td>
                     <td>
                         <button onclick='openEditModal(${JSON.stringify(user)})'>Edit</button>
-                        <button onclick='deleteUser("${user.id}")' style="color:red;">Delete</button>
+                        ${deleteBtn}
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -302,13 +373,21 @@
             document.getElementById('editStatus').value = user.status;
             document.getElementById('editEmailVerified').checked = user.is_email_verified;
             document.getElementById('editPhoneVerified').checked = user.is_phone_verified;
-            
-            // Roles
+
+            // Roles Handling for Dropdown
             let roles = user.roles || [];
-            if (typeof roles === 'string') try { roles = JSON.parse(roles); } catch(e){}
-            document.getElementById('editRoles').value = JSON.stringify(roles);
-            
-            document.getElementById('editUserModal').style.display = 'flex'; 
+            if (typeof roles === 'string') try { roles = JSON.parse(roles); } catch (e) { }
+            const roleNames = roles.map(r => (typeof r === 'object' ? r.name : r));
+
+            // Set dropdown value (pick first role or default)
+            const select = document.getElementById('editRoleSelect');
+            if (roleNames.length > 0) {
+                select.value = roleNames[0];
+            } else {
+                select.value = ""; // Reset if no role
+            }
+
+            document.getElementById('editUserModal').style.display = 'flex';
         }
 
         function closeEditModal() {
@@ -317,15 +396,10 @@
 
         async function saveUserChanges() {
             const id = document.getElementById('editUserId').value;
-            
-            // Validate roles JSON
-            let roles = [];
-            try {
-                roles = JSON.parse(document.getElementById('editRoles').value);
-            } catch (e) {
-                alert('Invalid Roles JSON');
-                return;
-            }
+
+            // Get role from Dropdown
+            const selectedRole = document.getElementById('editRoleSelect').value;
+            const roles = selectedRole ? [selectedRole] : [];
 
             const data = {
                 name: document.getElementById('editName').value,
@@ -335,15 +409,15 @@
                 status: document.getElementById('editStatus').value,
                 is_email_verified: document.getElementById('editEmailVerified').checked,
                 is_phone_verified: document.getElementById('editPhoneVerified').checked,
-                roles: roles 
+                roles: roles
             };
 
             try {
                 const res = await fetch(`${API_ADMIN}/${id}`, {
                     method: 'PUT',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${ACCESS_TOKEN}` 
+                        'Authorization': `Bearer ${ACCESS_TOKEN}`
                     },
                     body: JSON.stringify(data)
                 });
@@ -375,4 +449,5 @@
         }
     </script>
 </body>
+
 </html>

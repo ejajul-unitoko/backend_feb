@@ -4,6 +4,12 @@ import helmet from "helmet";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
 import adminUsersRoutes from "./routes/admin/AdminUsers.routes.js";
+import publicRoutes from "./routes/public.routes.js";
+import adminMarketsRoutes from "./routes/admin/markets.routes.js";
+import adminBusinessesRoutes from "./routes/admin/businesses.routes.js";
+import businessRoutes from "./routes/business/business.routes.js";
+import branchRoutes from "./routes/business/branches.routes.js";
+import branchUserRoutes from "./routes/business/branch_users.routes.js";
 
 const app = express();
 
@@ -17,6 +23,12 @@ app.use('/uploads', express.static('uploads'));
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/admin/users", adminUsersRoutes);
+app.use("/api/public", publicRoutes);
+app.use("/api/admin/markets", adminMarketsRoutes);
+app.use("/api/admin", adminBusinessesRoutes);
+app.use("/api/utb", businessRoutes);
+app.use("/api/utb", branchRoutes);
+app.use("/api/utb", branchUserRoutes);
 
 // Health Check Route
 app.get("/health", (req, res) => {

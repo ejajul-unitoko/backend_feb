@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Govt Pincode API Search</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        input {
+            padding: 8px;
+            width: 200px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        #error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🇮🇳 All India Pincode Directory (Govt API)</h1>
+
+    <div class="controls">
+        <label><strong>Search Pincode:</strong></label>
+        <input type="text" id="pincodeInput" placeholder="e.g. 110001">
+
+        <label style="margin-left: 15px;"><strong>Or Filter by Office:</strong></label>
+        <input type="text" id="officeInput" placeholder="e.g. Connaught Place">
+
+        <button onclick="fetchData()">Search</button>
+
+        <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+            <strong>Bulk Actions (Delhi):</strong>
+            <button onclick="downloadDelhiData('csv')" style="background-color: #28a745; margin-left: 10px;">Download
+                Delhi CSV</button>
+            <button onclick="downloadDelhiData('json')" style="background-color: #17a2b8; margin-left: 5px;">Download
+                Delhi JSON</button>
+        </div>
+
+        <div style="font-size: 12px; margin-top: 5px; color: #555;">
+            API Key: <code id="apiKeyDisplay">...</code>
+        </div>
+    </div>
+
+    <div id="status"></div>
+    <div id="error"></div>
+
+    <table id="resultsTable" style="display:none;">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+        // Configuration
+        const API_KEY = '579b464db66ec23bdd00000163ae810b89a2436a7c8438381471705d';
+        const RESOURCE_ID = '5c2f62fe-5afa-4119-a499-fec9d604d5bd';
+        const BASE_URL = 'https://api.data.gov.in/resource/' + RESOURCE_ID;
+
+        document.getElementById('apiKeyDisplay').textContent = API_KEY.substring(0, 10) + '...';
+
+        async function fetchData() {
+            const pincode = document.getElementById('pincodeInput').value.trim();
+            const office = document.getElementById('officeInput').value.trim();
+
+            const statusEl = document.getElementById('status');
+            const errorEl = document.getElementById('error');
+            const table = document.getElementById('resultsTable');
+            const thead = document.getElementById('tableHead');
+            const tbody = document.getElementById('tableBody');
+
+            // Reset
+            errorEl.textContent = '';
+            statusEl.textContent = 'Fetching data...';
+            statusEl.className = 'loading';
+            table.style.display = 'none';
+            tbody.innerHTML = '';
+            thead.innerHTML = '';
+
+            // Construct URL with filters
+            // Note: OGD India API uses filters like &filters[pincode]=110001
+            let url = `${BASE_URL}?api-key=${API_KEY}&format=json&limit=20`;
+
+            if (pincode) {
+                url += `&filters[pincode]=${pincode}`;
+            }
+            if (office) {
+                // Approximate partial text search might not be supported directly by all OGD resources standardly 
+                // without "like" operator, but exact match usually works with filters[col].
+                // We'll try standard filter.
+                url += `&filters[officename]=${office}`;
+            }
+
+            console.log('Fetching:', url);
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                statusEl.textContent = '';
+
+                if (data.error) {
+                    throw new Error(data.message || data.error);
+                }
+
+                // OGD Response Structure: { records: [...], field: [...], ... }
+                const records = data.records;
+                const fields = data.field || [];
+
+                if (!records || records.length === 0) {
+                    statusEl.textContent = 'No records found.';
+                    return;
+                }
+
+                // Render Headers dynamically based on returned fields
+                const headerRow = document.createElement('tr');
+
+                // If fields metadata is present, use it for friendly names, else keys from first record
+                let columns = [];
+                if (fields.length > 0) {
+                    columns = fields.map(f => f.id);
+                    fields.forEach(f => {
+                        const th = document.createElement('th');
+                        th.textContent = f.name || f.id;
+                        headerRow.appendChild(th);
+                    });
+                } else {
+                    columns = Object.keys(records[0]);
+                    columns.forEach(col => {
+                        const th = document.createElement('th');
+                        th.textContent = col;
+                        headerRow.appendChild(th);
+                    });
+                }
+                thead.appendChild(headerRow);
+
+                // Render Rows
+                records.forEach(record => {
+                    const tr = document.createElement('tr');
+                    columns.forEach(col => {
+                        const td = document.createElement('td');
+                        td.textContent = record[col] || '-';
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+
+                table.style.display = 'table';
+                statusEl.textContent = `Found ${data.count || records.length} records.`;
+
+            } catch (err) {
+                console.error(err);
+                statusEl.textContent = '';
+                errorEl.textContent = 'Error: ' + err.message;
+            }
+        }
+
+        async function downloadDelhiData(format) {
+            const statusEl = document.getElementById('status');
+            const errorEl = document.getElementById('error');
+
+            // Initial State
+            errorEl.textContent = '';
+            statusEl.textContent = 'Starting download for ALL Delhi records... (This may take a moment)';
+            statusEl.className = 'loading';
+
+            let allRecords = [];
+            let offset = 0;
+            const limit = 1000; // Try larger chunk
+            let hasMore = true;
+
+            try {
+                while (hasMore) {
+                    // Filter for Delhi
+                    const url = `${BASE_URL}?api-key=${API_KEY}&format=json&limit=${limit}&offset=${offset}&filters[statename]=DELHI`;
+                    console.log(`Fetching batch: offset=${offset}`);
+
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    if (data.error) throw new Error(data.message || data.error);
+
+                    const records = data.records;
+                    if (!records || records.length === 0) {
+                        hasMore = false;
+                        break;
+                    }
+
+                    allRecords = allRecords.concat(records);
+                    statusEl.textContent = `Fetched ${allRecords.length} records so far...`;
+
+                    // Check if we reached the end (if returned less than limit, we are done)
+                    if (records.length < limit) {
+                        hasMore = false;
+                    } else {
+                        offset += limit;
+                    }
+                }
+
+                if (allRecords.length === 0) {
+                    statusEl.textContent = 'No Delhi records found.';
+                    return;
+                }
+
+                statusEl.textContent = `Processing ${allRecords.length} records...`;
+
+                // Generate File
+                if (format === 'json') {
+                    const blob = new Blob([JSON.stringify(allRecords, null, 2)], { type: 'application/json' });
+                    triggerDownload(blob, 'delhi_pincodes.json');
+                } else if (format === 'csv') {
+                    const csvContent = convertToCSV(allRecords);
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+                    triggerDownload(blob, 'delhi_pincodes.csv');
+                }
+
+                statusEl.textContent = `✅ Successfully downloaded ${allRecords.length} Delhi records as ${format.toUpperCase()}`;
+
+            } catch (err) {
+                console.error(err);
+                statusEl.textContent = '';
+                errorEl.textContent = 'Download Error: ' + err.message;
+            }
+        }
+
+        function convertToCSV(records) {
+            if (records.length === 0) return '';
+            const headers = Object.keys(records[0]);
+            const headerLine = headers.join(',') + '\n';
+
+            const rows = records.map(rec => {
+                return headers.map(header => {
+                    let val = rec[header] || '';
+                    // Escape quotes and wrap in quotes if contains comma
+                    val = String(val).replace(/"/g, '""');
+                    if (val.search(/("|,|\n)/g) >= 0) val = `"${val}"`;
+                    return val;
+                }).join(',');
+            }).join('\n');
+
+            return headerLine + rows;
+        }
+
+        function triggerDownload(blob, filename) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>

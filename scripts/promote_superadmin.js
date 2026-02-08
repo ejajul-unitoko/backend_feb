@@ -1,8 +1,9 @@
 import pool from '../src/config/database.js';
 import UserRepository from '../src/repositories/UserRepository.js';
 import RbacRepository from '../src/repositories/RbacRepository.js';
+import bcrypt from 'bcrypt';
 
-const EMAIL = 'ejajul@unitoko';
+const EMAIL = 'ejajul@unitoko.com';
 const SCOPE = 'uta';
 
 async function promote() {
@@ -14,17 +15,22 @@ async function promote() {
         let user = await UserRepository.findByEmail(EMAIL, SCOPE);
         if (!user) {
             console.log('User not found. Creating user...');
+            const passwordHash = await bcrypt.hash('12345678', 10);
             user = await UserRepository.create({
                 email: EMAIL,
                 scope: SCOPE,
                 name: 'Super Admin',
                 status: 'active',
                 phone: null, // Optional
-                password_hash: null // Using OTP for now
+                password_hash: passwordHash
             });
             console.log('User created:', user.id);
         } else {
             console.log('User found:', user.id);
+            // Update password for existing user
+            const passwordHash = await bcrypt.hash('12345678', 10);
+            await client.query("UPDATE users SET password_hash = $1 WHERE id = $2", [passwordHash, user.id]);
+            console.log('Password updated to 12345678');
         }
 
         // 2. Find Super Admin Role
@@ -40,11 +46,11 @@ async function promote() {
 
         // 4. Assign ALL Permissions to Super Admin Role (Crucial Step)
         console.log('Granting all permissions to super_admin role...');
-        
+
         // Fetch all permissions for this scope
         const resPerms = await client.query('SELECT id, slug FROM permissions WHERE scope = $1', [SCOPE]);
         const allPermissions = resPerms.rows;
-        
+
         if (allPermissions.length === 0) {
             console.warn('No permissions found for scope uta!');
         } else {
