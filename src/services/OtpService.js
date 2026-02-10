@@ -80,7 +80,22 @@ class OtpService {
     }
 
     async sendOtpEmail(email, code, purpose) {
-        // Simple templates based on purpose
+        // Check if we should log to console instead of sending email
+        const otpMode = process.env.OTP_MODE || 'email';
+        
+        if (otpMode === 'console') {
+            // Development mode: log OTP to console
+            console.log('\n' + '='.repeat(60));
+            console.log('📧 OTP EMAIL (Development Mode)');
+            console.log('='.repeat(60));
+            console.log(`To: ${email}`);
+            console.log(`Purpose: ${purpose}`);
+            console.log(`Code: ${code}`);
+            console.log('='.repeat(60) + '\n');
+            return; // Don't send actual email
+        }
+        
+        // Production mode: send actual email
         let subject = 'UniToko Verification Code';
         let html = `<p>Your verification code is: <b>${code}</b></p>`;
 
@@ -96,7 +111,20 @@ class OtpService {
     }
 
     async sendAdminRequestNotification(userEmail, approvalLink) {
-        // Notify Super Admin
+        const otpMode = process.env.OTP_MODE || 'email';
+        
+        if (otpMode === 'console') {
+            // Development mode: log to console
+            console.log('\n' + '='.repeat(60));
+            console.log('📧 ADMIN REQUEST NOTIFICATION (Development Mode)');
+            console.log('='.repeat(60));
+            console.log(`User: ${userEmail}`);
+            console.log(`Approval Link: ${approvalLink}`);
+            console.log('='.repeat(60) + '\n');
+            return;
+        }
+        
+        // Production mode: send actual email
         const superAdminEmail = process.env.ADMIN_APPROVER_EMAIL || 'ejajul@unitoko.com'; 
         // fallback logic should be handled with envs ideally
         
@@ -125,6 +153,20 @@ class OtpService {
     }
 
     async sendAdminApprovalNotification(userEmail) {
+        const otpMode = process.env.OTP_MODE || 'email';
+        
+        if (otpMode === 'console') {
+            // Development mode: log to console
+            console.log('\n' + '='.repeat(60));
+            console.log('📧 ADMIN APPROVAL NOTIFICATION (Development Mode)');
+            console.log('='.repeat(60));
+            console.log(`To: ${userEmail}`);
+            console.log(`Message: Admin access approved!`);
+            console.log('='.repeat(60) + '\n');
+            return;
+        }
+        
+        // Production mode: send actual email
         await mailer.sendEmail({
             to: userEmail,
             subject: 'Admin Access Approved',

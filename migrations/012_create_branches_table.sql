@@ -2,6 +2,9 @@
 -- Description: Stores branch/location data for businesses
 -- Dependencies: businesses table
 
+-- Ensure search path includes public where geo types live
+SET search_path TO public, "$user";
+
 -- Create branches table
 CREATE TABLE IF NOT EXISTS branches (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -35,9 +38,11 @@ CREATE INDEX idx_branches_status ON branches(status);
 CREATE INDEX idx_branches_is_primary ON branches(is_primary) WHERE is_primary = true;
 
 -- Geospatial index for location-based queries (future use)
-CREATE INDEX idx_branches_location ON branches USING gist(
-    ll_to_earth(latitude, longitude)
-) WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+-- Note: Commented out because earth type visibility issues in migration transactions
+-- You can create this index manually after migrations complete:
+-- CREATE INDEX idx_branches_location ON branches USING gist(
+--     ll_to_earth(latitude, longitude)
+-- ) WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
 
 -- Comments for documentation
 COMMENT ON TABLE branches IS 'Stores branch/location data for businesses';

@@ -48,15 +48,16 @@ class BranchUserService {
         // Edge Case 3: Find or create user
         let user = await UserRepository.findByEmailAndScope(email.toLowerCase().trim(), 'utb');
 
+
         if (!user) {
             // Create new user with pending status
             const hashedPassword = await bcrypt.hash(password, 10);
 
             user = await UserRepository.create({
                 email: email.toLowerCase().trim(),
-                password: hashedPassword,
+                password_hash: hashedPassword,
                 scope: 'utb',
-                full_name: email.split('@')[0], // Temporary name
+                name: email.split('@')[0], // Temporary name
                 status: 'pending' // Will be activated on first login
             });
         }

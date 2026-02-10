@@ -17,6 +17,11 @@ class UserRepository {
         return result.rows[0];
     }
 
+    // Alias for semantic clarity
+    async findByEmailAndScope(email, scope) {
+        return this.findByEmail(email, scope);
+    }
+
     async findByPhone(phone, scope) {
         const result = await pool.query(
             'SELECT * FROM users WHERE phone = $1 AND scope = $2 AND deleted_at IS NULL',
