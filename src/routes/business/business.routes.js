@@ -1,5 +1,5 @@
 import express from 'express';
-import BusinessController from '../../controllers/business/BusinessController.js';
+import BusinessController from '../../controllers/BusinessController.js';
 import { authenticate } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();

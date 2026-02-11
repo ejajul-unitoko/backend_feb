@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS business_markets (
 );
 
 -- Indexes for efficient lookups
-CREATE INDEX idx_business_markets_business_id ON business_markets(business_id);
-CREATE INDEX idx_business_markets_market_id ON business_markets(market_id);
+CREATE INDEX IF NOT EXISTS idx_business_markets_business_id ON business_markets(business_id);
+CREATE INDEX IF NOT EXISTS idx_business_markets_market_id ON business_markets(market_id);
 
 -- Comments for documentation
 COMMENT ON TABLE business_markets IS 'Junction table linking businesses to markets (many-to-many)';

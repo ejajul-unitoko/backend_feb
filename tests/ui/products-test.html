@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products & Inventory - Test Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            max-width: 1400px;
+            margin: auto;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #2c3e50;
+        }
+
+        h1 {
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: white;
+            border: 1px solid #e9ecef;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            font-size: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Role-based Accents */
+        .uta-section {
+            border-top: 5px solid #e74c3c;
+        }
+
+        /* Red for Admin */
+        .utb-section {
+            border-top: 5px solid #2ecc71;
+        }
+
+        /* Green for Business */
+        .utc-section {
+            border-top: 5px solid #f39c12;
+        }
+
+        /* Orange for Public */
+        .auth-section {
+            border-top: 5px solid #9b59b6;
+        }
+
+        /* Purple for Auth */
+
+        .uta-section h2 {
+            color: #c0392b;
+        }
+
+        .utb-section h2 {
+            color: #27ae60;
+        }
+
+        .utc-section h2 {
+            color: #d35400;
+        }
+
+        .auth-section h2 {
+            color: #8e44ad;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 13px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.15s ease-in-out;
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #3498db;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.success {
+            background: #2ecc71;
+        }
+
+        button.success:hover {
+            background: #27ae60;
+        }
+
+        button.danger {
+            background: #e74c3c;
+        }
+
+        button.danger:hover {
+            background: #c0392b;
+        }
+
+        button.warning {
+            background: #f1c40f;
+            color: #333;
+        }
+
+        button.warning:hover {
+            background: #f39c12;
+        }
+
+        button.info {
+            background: #17a2b8;
+        }
+
+        button.info:hover {
+            background: #138496;
+        }
+
+        pre {
+            background: #2d3436;
+            color: #dfe6e9;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 300px;
+            margin-top: 10px;
+        }
+
+        .response {
+            margin-top: 10px;
+        }
+
+        .success-response pre {
+            border-left: 4px solid #2ecc71;
+        }
+
+        .error-response pre {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .token-display {
+            background: #e8f6f3;
+            color: #16a085;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 10px;
+            border: 1px solid #d1f2eb;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25em 0.4em;
+            font-size: 75%;
+            font-weight: 700;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+            color: white;
+            background-color: #6c757d;
+        }
+
+        .badge.primary {
+            background-color: #007bff;
+        }
+
+        .badge.success {
+            background-color: #28a745;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📦 Products & Inventory - Command Center</h1>
+    <p>Unified interface for managing Admin Catalogs, Business Inventory, and Public Views.</p>
+
+    <!-- Authentication -->
+    <div class="section auth-section">
+        <h2>🔐 key.access_control</h2>
+        <div class="grid-2">
+            <div>
+                <h3>1. Authenticate</h3>
+                <label>Email</label>
+                <input type="email" id="email" value="admin@unitoko.com">
+                <label>Auth Scope (Header: x-app-type)</label>
+                <select id="scope">
+                    <option value="uta">UTA (Admin/Staff)</option>
+                    <option value="utb">UTB (Business)</option>
+                    <option value="utc">UTC (Customer)</option>
+                </select>
+                <div class="grid-2">
+                    <button class="info" onclick="sendOtp()">Send OTP</button>
+                    <button class="warning" onclick="togglePasswordLogin()">Password Login</button>
+                </div>
+
+                <div id="otpSection"
+                    style="display:none; margin-top:10px; padding:10px; background:#f1f2f6; border-radius:6px;">
+                    <label>OTP Code</label>
+                    <input type="text" id="otp" placeholder="123456">
+                    <button class="success" onclick="verifyOtp()">Verify & Login</button>
+                </div>
+
+                <div id="passwordSection"
+                    style="display:none; margin-top:10px; padding:10px; background:#f1f2f6; border-radius:6px;">
+                    <label>Password</label>
+                    <input type="password" id="password" value="password123">
+                    <button class="success" onclick="loginWithPassword()">Login</button>
+                </div>
+            </div>
+            <div>
+                <h3>Session Status</h3>
+                <div id="tokenDisplay" class="token-display" style="display:none;">
+                    <strong>Token Active:</strong> <span id="tokenValue"></span>
+                </div>
+                <div id="authResponse" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin: Categories -->
+    <div class="section uta-section">
+        <h2>📂 Admin: Category Management</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Create Category</h3>
+                <label>Name</label>
+                <input type="text" id="catName" placeholder="e.g. Electronics">
+                <label>Slug (optional)</label>
+                <input type="text" id="catSlug" placeholder="e.g. electronics">
+                <label>Parent Category ID (optional)</label>
+                <input type="text" id="catParentId" placeholder="UUID">
+                <button class="success" onclick="createCategory()">Create Category</button>
+                <div id="createCategoryResponse" class="response"></div>
+            </div>
+            <div>
+                <h3>Manage Categories</h3>
+                <button class="info" onclick="listCategories()">List All Categories</button>
+                <div style="margin-top:10px;">
+                    <label>Category ID</label>
+                    <div class="grid-2">
+                        <input type="text" id="manageCatId" placeholder="UUID">
+                        <button class="danger" onclick="deleteCategory()">Delete</button>
+                    </div>
+                </div>
+                <div id="listCategoriesResponse" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin: Global Products -->
+    <div class="section uta-section">
+        <h2>🌏 Admin: Global Product Catalog</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Add Global Product</h3>
+                <label>Scope</label>
+                <select id="prodScope" onchange="toggleProductScope()">
+                    <option value="global">Global (Unitoko Catalog)</option>
+                    <option value="business">Private Scope (Business Specific)</option>
+                </select>
+
+                <div id="prodBusinessSection"
+                    style="display:none; margin-bottom:15px; background:#e8f8f5; padding:10px; border-radius:6px;">
+                    <label>Select Business</label>
+                    <div class="grid-2">
+                        <select id="prodBusinessId" onchange="loadProdBranches()">
+                            <option value="">-- Select Market First --</option>
+                        </select>
+                        <button onclick="loadProdBusinesses()" class="info">Load Businesses</button>
+                    </div>
+                </div>
+
+                <label>Name</label>
+                <input type="text" id="prodName" placeholder="e.g. iPhone 15">
+                <label>Description</label>
+                <textarea id="prodDesc" rows="2" placeholder="Product details..."></textarea>
+
+                <div class="grid-2">
+                    <div>
+                        <label>Base Price</label>
+                        <input type="text" id="prodPrice" placeholder="999.00">
+                    </div>
+                    <div>
+                        <label>Category ID</label>
+                        <input type="text" id="prodCatId" placeholder="UUID">
+                    </div>
+                </div>
+
+                <label>Unit (Required)</label>
+                <input type="text" id="prodUnit" placeholder="e.g. kg, litre, piece">
+
+                <label>Attributes (JSON)</label>
+                <textarea id="prodAttrs" rows="2">{"brand": "Apple", "color": "Black"}</textarea>
+
+                <div
+                    style="grid-column: 1 / -1; background:#e8f8f5; padding:10px; border-radius:6px; margin-bottom:15px;">
+                    <p><strong>Tip:</strong> If logged in as <strong>Business (UTB)</strong>, use the 🔄 button next to
+                        "Select Branch" to load your branches directly.</p>
+                    <label>Context: Single Business Branch</label>
+                </div>
+                <div style="background:#fef9e7; padding:10px; border-radius:6px; margin-bottom:10px;">
+                    <label style="display:inline-flex; align-items:center;">
+                        <input type="checkbox" id="prodAutoLink" onchange="toggleAutoLink()"
+                            style="width:auto; margin-right:10px;">
+                        Auto-add to Branch Inventory?
+                    </label>
+                    <div id="prodBranchSection" style="display:none; margin-top:10px;">
+                        <label>Select Branch</label>
+                        <select id="prodBranchId">
+                            <option value="">-- Select Business First --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="success" onclick="createProduct()">Create Product</button>
+                <div id="createProductResponse" class="response"></div>
+            </div>
+            <div>
+                <h3>Catalog Operations</h3>
+                <div class="grid-2">
+                    <button class="info" onclick="listProducts()">List All Products</button>
+                    <input type="text" id="searchProdQuery" placeholder="Search...">
+                </div>
+
+                <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                    <label>Product ID (Manage)</label>
+                    <input type="text" id="manageProdId" placeholder="UUID">
+                    <div class="grid-3">
+                        <button onclick="getProductById()">Details</button>
+                        <button class="warning" onclick="updateProductAdmin()">Edit</button>
+                        <button class="danger" onclick="deleteProduct('soft')">Delete</button>
+                    </div>
+                    <button style="margin-top:10px; width:100%;" class="info" onclick="getMasterProductDetails()">🔎 360
+                        Master View</button>
+                    <div class="grid-2" style="margin-top:10px;">
+                        <button class="danger" onclick="getTrash()">🗑 View Trash</button>
+                        <button class="success" onclick="restoreProduct()">♻️ Restore (by ID)</button>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top:15px; border-top:1px solid #eee; padding-top:10px; background:#fdf2e9; padding:10px; border-radius:6px;">
+                    <label style="color:#d35400;">Approval Workflow</label>
+                    <input type="text" id="approvalProdId" placeholder="Business Product ID (Not Global ID)">
+                    <div class="grid-2">
+                        <button class="success" onclick="approveProduct('approved')">✅ Approve</button>
+                        <button class="danger" onclick="approveProduct('rejected')">❌ Reject</button>
+                    </div>
+                    <div id="approvalResponse" class="response"></div>
+                </div>
+
+                <div id="listProductsResponse" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business: My Products (Level 2) -->
+    <div class="section utb-section">
+        <h2>🏭 Business: My Product Ownership</h2>
+        <div class="grid-2">
+            <div>
+                <h3>My Products</h3>
+                <p>Products owned or claimed by your business.</p>
+                <button class="info" onclick="getMyBusinessProducts()">Load My Products</button>
+            </div>
+            <div>
+                <div id="myProductsResponse" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business: Branch Inventory -->
+    <div class="section utb-section">
+        <h2>🏪 Business: Branch Inventory</h2>
+        <div class="grid-3">
+            <div
+                style="grid-column: 1 / -1; background: #e8f8f5; padding: 15px; border-radius: 8px; border: 1px solid #2ecc71;">
+                <h3 style="margin-top:0; color:#27ae60;">🏢 Context Selector (Admin Helper)</h3>
+                <div class="grid-3">
+                    <div>
+                        <label>1. Select Market</label>
+                        <select id="ctxMarket" onchange="loadBusinessesForContext()">
+                            <option value="">-- Load Markets First --</option>
+                            <option value="">-- Select Market --</option>
+                        </select>
+                        <select id="ctxBusiness" onchange="loadBranchesForContext()" disabled>
+                            <option value="">-- Select Business --</option>
+                        </select>
+                        <div style="display:flex; gap:5px;">
+                            <select id="ctxBranchId" onchange="setBranchContext()" disabled style="flex-grow:1;">
+                                <option value="">-- Select Branch --</option>
+                            </select>
+                            <button class="info" onclick="loadMyBranches()" style="padding:5px;"
+                                title="Load My Branches (Business User)">🔄</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:10px; font-size:12px; color:#666;">
+                    <strong>Active Branch ID:</strong> <span id="activeBranchDisplay"
+                        style="font-family:monospace; font-weight:bold;">None</span>
+                </div>
+            </div>
+
+            <!-- New: Create Business Product -->
+            <div style="grid-column: 1 / -1;">
+                <h3>0. Create New Private Product (Factory)</h3>
+                <div class="grid-4">
+                    <input type="text" id="bpName" placeholder="Product Name">
+                    <input type="text" id="bpDesc" placeholder="Description">
+                    <input type="text" id="bpPriceAuth" placeholder="Base Price">
+                    <input type="text" id="bpUnit" placeholder="Unit (kg/pc)">
+                </div>
+                <div class="grid-2">
+                    <input type="text" id="bpCatId" placeholder="Category UUID (See Admin)">
+                    <button class="success" onclick="createBusinessProduct()">Create Private Product</button>
+                </div>
+                <div id="createBusinessProductResponse" class="response"></div>
+            </div>
+
+            <div>
+                <h3>1. Add to Branch</h3>
+                <label>Global Product ID</label>
+                <input type="text" id="bpGlobalId" placeholder="UUID from Admin Catalog">
+
+                <div class="grid-2">
+                    <div>
+                        <label>Selling Price</label>
+                        <input type="text" id="bpPrice" placeholder="1050.00">
+                    </div>
+                    <div>
+                        <label>Initial Stock</label>
+                        <input type="text" id="bpStock" placeholder="10">
+                    </div>
+                </div>
+                <button class="success" onclick="addProductToBranch()">Add to Inventory</button>
+                <div id="addBranchProdResponse" class="response"></div>
+            </div>
+
+            <div>
+                <h3>2. Manage Stock/Price</h3>
+                <label>Branch Product ID (Not Global ID)</label>
+                <input type="text" id="bpId" placeholder="UUID">
+
+                <div class="grid-2">
+                    <button onclick="updateBranchProductPrice()">Update Price</button>
+                    <button class="warning" onclick="updateBranchProductStock()">Update Stock</button>
+                </div>
+
+                <div style="margin-top:10px;">
+                    <input type="text" id="bpNewPrice" placeholder="New Price">
+                    <input type="text" id="bpStockChange" placeholder="Qty (+/-)">
+                    <input type="text" id="bpStockReason" placeholder="Reason (restock/sale)">
+                </div>
+                <div id="manageBpResponse" class="response"></div>
+            </div>
+
+            <div>
+                <h3>3. View Inventory</h3>
+                <button class="info" onclick="listBranchProducts()">List Branch Products</button>
+                <button onclick="getInventoryLogs()">View Logs</button>
+                <div id="listBranchProdResponse" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Public: Market Catalog -->
+    <div class="section utc-section">
+        <h2>🛍️ Public: Market & Search</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Market Catalog</h3>
+                <label>Market ID</label>
+                <input type="text" id="publicMarketId" placeholder="UUID">
+                <button class="info" onclick="getMarketProducts()">View Market Products</button>
+                <button onclick="getAllCategoriesPublic()">View Categories</button>
+                <div id="publicMarketResponse" class="response"></div>
+            </div>
+            <div>
+                <h3>Product Details</h3>
+                <label>Global Product ID</label>
+                <input type="text" id="publicProdId" placeholder="UUID">
+                <button onclick="getPublicProduct()">Get Product Details</button>
+                <button class="info" onclick="getAllPublicProducts()">List All Products (Card View)</button>
+                <div id="publicProdResponse" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:4000/api';
+        let authToken = '';
+        let authScope = 'uta'; // Default to admin for initial ease
+
+        function displayResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<pre class="${isError ? 'error-response' : 'success-response'}">${JSON.stringify(data, null, 2)}</pre>`;
+
+            // Auto-fill helpers
+            if (!isError && data.data && data.success) {
+                if (elementId === 'createCategoryResponse' && data.data.id) {
+                    document.getElementById('prodCatId').value = data.data.id;
+                }
+                if (elementId === 'createProductResponse' && data.data.id) {
+                    document.getElementById('bpGlobalId').value = data.data.id;
+                    document.getElementById('manageProdId').value = data.data.id;
+                    document.getElementById('publicProdId').value = data.data.id;
+                }
+                if (elementId === 'addBranchProdResponse' && data.data.id) {
+                    document.getElementById('bpId').value = data.data.id;
+                }
+            }
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const scope = document.getElementById('scope').value;
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (authToken) {
+                options.headers['Authorization'] = `Bearer ${authToken}`;
+                options.headers['x-app-type'] = scope;
+            }
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, options);
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = { error: 'Invalid JSON response', text: await response.text() };
+                }
+                return { data, status: response.status, isError: !response.ok };
+            } catch (error) {
+                return { data: { error: error.message }, status: 0, isError: true };
+            }
+        }
+
+        // --- Auth ---
+        function togglePasswordLogin() {
+            const el = document.getElementById('passwordSection');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            document.getElementById('otpSection').style.display = 'none';
+        }
+
+        async function sendOtp() {
+            document.getElementById('passwordSection').style.display = 'none';
+            const email = document.getElementById('email').value;
+            const scope = document.getElementById('scope').value;
+            const result = await apiCall('/auth/otp/send', 'POST', { email }); // Headers handled in apiCall? No, need to pass scope if no token.
+            // Wait, apiCall uses scope from select box.
+
+            // Actually, /auth endpoints often need scope in header even without token
+            const res = await fetch(`${API_BASE}/auth/otp/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-app-type': scope },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+
+            displayResponse('authResponse', data, !res.ok);
+            if (res.ok) document.getElementById('otpSection').style.display = 'block';
+        }
+
+        async function verifyOtp() {
+            const email = document.getElementById('email').value;
+            const otp = document.getElementById('otp').value;
+            const scope = document.getElementById('scope').value;
+
+            const res = await fetch(`${API_BASE}/auth/otp/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-app-type': scope },
+                body: JSON.stringify({ email, otp })
+            });
+            const data = await res.json();
+
+            handleLoginSuccess(data, res.ok);
+        }
+
+        async function loginWithPassword() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const scope = document.getElementById('scope').value;
+
+            const res = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-app-type': scope },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            handleLoginSuccess(data, res.ok);
+        }
+
+        function handleLoginSuccess(data, isOk) {
+            displayResponse('authResponse', data, !isOk);
+            if (isOk && data.accessToken) {
+                authToken = data.accessToken;
+                document.getElementById('tokenDisplay').style.display = 'block';
+                document.getElementById('tokenValue').innerText = authToken.substring(0, 20) + '...';
+                document.getElementById('otpSection').style.display = 'none';
+                document.getElementById('passwordSection').style.display = 'none';
+            }
+        }
+
+        // --- Admin: Categories ---
+        async function listCategories() {
+            const result = await apiCall('/admin/categories');
+            displayResponse('listCategoriesResponse', result.data, result.isError);
+        }
+
+        async function createCategory() {
+            const body = {
+                name: document.getElementById('catName').value,
+                slug: document.getElementById('catSlug').value || undefined,
+                parent_id: document.getElementById('catParentId').value || null
+            };
+            const result = await apiCall('/admin/categories', 'POST', body);
+            displayResponse('createCategoryResponse', result.data, result.isError);
+        }
+
+        async function deleteCategory() {
+            const id = document.getElementById('manageCatId').value;
+            const result = await apiCall(`/admin/categories/${id}`, 'DELETE');
+            displayResponse('listCategoriesResponse', result.data, result.isError);
+        }
+
+        // --- Admin: Products ---
+        async function listProducts() {
+            const q = document.getElementById('searchProdQuery').value;
+            const endpoint = q ? `/admin/products?q=${q}` : '/admin/products';
+            const result = await apiCall(endpoint);
+            displayResponse('listProductsResponse', result.data, result.isError);
+        }
+
+        async function createProduct() {
+            const scope = document.getElementById('prodScope').value;
+            const businessId = scope === 'business' ? document.getElementById('prodBusinessId').value : null;
+            const autoLink = document.getElementById('prodAutoLink').checked;
+            const branchId = autoLink ? document.getElementById('prodBranchId').value : null;
+
+            if (scope === 'business' && !businessId) return alert('Please select a business for private scope');
+            if (autoLink && !branchId) return alert('Please select a branch for auto-linking');
+
+            const body = {
+                name: document.getElementById('prodName').value,
+                description: document.getElementById('prodDesc').value,
+                price: parseFloat(document.getElementById('prodPrice').value),
+                category_id: document.getElementById('prodCatId').value,
+                unit: document.getElementById('prodUnit').value,
+                attributes: JSON.parse(document.getElementById('prodAttrs').value || '{}'),
+                business_id: businessId,
+                branch_id: branchId
+            };
+            const result = await apiCall('/admin/products', 'POST', body);
+            displayResponse('createProductResponse', result.data, result.isError);
+        }
+
+        // --- Create Product UI Helpers ---
+        function toggleProductScope() {
+            const scope = document.getElementById('prodScope').value;
+            document.getElementById('prodBusinessSection').style.display = scope === 'business' ? 'block' : 'none';
+        }
+
+        function toggleAutoLink() {
+            const checked = document.getElementById('prodAutoLink').checked;
+            document.getElementById('prodBranchSection').style.display = checked ? 'block' : 'none';
+            // If checking and business selected, load branches? 
+            // Better to rely on user selecting business then branches load.
+            const scope = document.getElementById('prodScope').value;
+            if (checked && scope === 'business') {
+                loadProdBranches();
+            }
+        }
+
+        async function loadProdBusinesses() {
+            // Reusing the Search endpoint empty query (list all) or just list all
+            const result = await apiCall('/admin/businesses');
+            const select = document.getElementById('prodBusinessId');
+            select.innerHTML = '<option value="">-- Select Business --</option>';
+            if (result.data && result.data.data) {
+                result.data.data.forEach(b => {
+                    select.innerHTML += `<option value="${b.id}">${b.display_name}</option>`;
+                });
+            }
+        }
+
+        async function loadProdBranches() {
+            // Priority: Use the selected Business ID from Scope
+            // OR if Global, maybe user wants to link to ANY branch? 
+            // Logic: "Global Product" -> Link to "Any Branch"? 
+            // Yes, user might want to create Global Product and link to specific branch immediately.
+            // If Scope=Global, we need a way to select Business then Branch.
+            // But UI simplifies: If Global, we don't show Business selector by default.
+            // Let's assume Auto-Link is mostly useful when we KNOW the business context.
+            // If Global, and Auto-Link checked, we check if a Business is selected in Context Selector? 
+            // Or we just show a Business Selector in the Branch Section?
+
+            // For simplicity/practicality requested:
+            // If Scope=Business, use that Business ID.
+            // If Scope=Global, user can't auto-link easily without selecting business first.
+            // Let's rely on Scope=Business for now for auto-linking to Work best.
+            // OR if Global, allow linking but user must pick business.
+
+            let businessId = document.getElementById('prodBusinessId').value;
+
+            // Fallback: If Context Selector has a Business, use that?
+            if (!businessId) {
+                const ctxBusiness = document.getElementById('ctxBusiness').value;
+                if (ctxBusiness) businessId = ctxBusiness;
+            }
+
+            if (!businessId) {
+                // If trying to auto-link a global product validation might fail or list empty
+                // alert('Select a Business first to load branches');
+                return;
+            }
+
+            const result = await apiCall(`/admin/businesses/${businessId}/branches`);
+            const select = document.getElementById('prodBranchId');
+            select.innerHTML = '<option value="">-- Select Branch --</option>';
+            if (result.data && result.data.data) {
+                result.data.data.forEach(b => {
+                    select.innerHTML += `<option value="${b.id}">${b.name}</option>`;
+                });
+            }
+        }
+
+        async function getProductById() {
+            const id = document.getElementById('manageProdId').value;
+            const result = await apiCall(`/admin/products/${id}`);
+            displayResponse('listProductsResponse', result.data, result.isError);
+        }
+
+        async function deleteProduct() {
+            const id = document.getElementById('manageProdId').value;
+            const result = await apiCall(`/admin/products/${id}`, 'DELETE');
+            displayResponse('listProductsResponse', result.data, result.isError);
+        }
+
+        // --- Business: Products (Ownership) ---
+        async function getMyBusinessProducts() {
+            const result = await apiCall('/utb/my-products');
+            displayResponse('myProductsResponse', result.data, result.isError);
+        }
+
+        async function createBusinessProduct() {
+            // Reusing Admin Create UI logic but pointing to different endpoint
+            // or we add a specific form
+            const body = {
+                name: document.getElementById('bpName').value,
+                description: document.getElementById('bpDesc').value,
+                price: parseFloat(document.getElementById('bpPriceAuth').value),
+                category_id: document.getElementById('bpCatId').value,
+                unit: document.getElementById('bpUnit').value,
+                // Optional: Auto-link to branch via body.branch_id if we want
+                // But let's keep it simple
+            };
+            const result = await apiCall('/utb/my-products', 'POST', body);
+            displayResponse('createBusinessProductResponse', result.data, result.isError);
+            if (result.data && result.data.data) {
+                document.getElementById('bpGlobalId').value = result.data.data.id;
+            }
+        }
+
+        // --- Business: Branch ---
+        async function listBranchProducts() {
+            const branchId = document.getElementById('ctxBranchId').value;
+            if (!branchId) return alert('Branch ID required');
+
+            const result = await apiCall(`/utb/branches/${branchId}/products`);
+            displayResponse('listBranchProdResponse', result.data, result.isError);
+        }
+
+        async function addProductToBranch() {
+            const branchId = document.getElementById('ctxBranchId').value;
+            if (!branchId) return alert('Branch ID required');
+
+            const body = {
+                product_id: document.getElementById('bpGlobalId').value,
+                price: parseFloat(document.getElementById('bpPrice').value),
+                stock_quantity: parseInt(document.getElementById('bpStock').value)
+            };
+            const result = await apiCall(`/utb/branches/${branchId}/products`, 'POST', body);
+            displayResponse('addBranchProdResponse', result.data, result.isError);
+        }
+
+        async function updateBranchProductPrice() {
+            const id = document.getElementById('bpId').value;
+            const price = document.getElementById('bpNewPrice').value;
+            if (!id || !price) return alert('ID and Price required');
+
+            const result = await apiCall(`/utb/branch-products/${id}/price`, 'PUT', { price });
+            displayResponse('manageBpResponse', result.data, result.isError);
+        }
+
+        async function updateBranchProductStock() {
+            const id = document.getElementById('bpId').value;
+            const change = document.getElementById('bpStockChange').value;
+            const reason = document.getElementById('bpStockReason').value;
+            if (!id || !change || !reason) return alert('ID, Change, and Reason required');
+
+            const result = await apiCall(`/utb/branch-products/${id}/stock`, 'PUT', { change, reason });
+            displayResponse('manageBpResponse', result.data, result.isError);
+        }
+
+        async function getInventoryLogs() {
+            const id = document.getElementById('bpId').value;
+            if (!id) return alert('ID required');
+            const result = await apiCall(`/utb/branch-products/${id}/logs`);
+            displayResponse('manageBpResponse', result.data, result.isError);
+        }
+
+        // --- Admin Approvals ---
+        async function approveProduct(status) {
+            const id = document.getElementById('approvalProdId').value;
+            if (!id) return alert('Product ID required (BusinessProductId)');
+
+            const result = await apiCall(`/admin/products/business-products/${id}/approval`, 'PATCH', { status });
+            displayResponse('approvalResponse', result.data, result.isError);
+        }
+
+        async function updateProductAdmin() {
+            const id = document.getElementById('manageProdId').value;
+            const name = prompt("New Name:");
+            if (!name) return;
+            const result = await apiCall(`/admin/products/${id}`, 'PUT', { name });
+            displayResponse('listProductsResponse', result.data, result.isError);
+        }
+
+        async function getMasterProductDetails() {
+            const id = document.getElementById('manageProdId').value;
+            if (!id) return alert('Product ID required');
+            const result = await apiCall(`/admin/products/${id}/master`);
+            displayResponse('listProductsResponse', result.data, result.isError);
+        }
+
+        async function getTrash() {
+            const result = await apiCall(`/admin/products/trash/all`);
+            displayResponse('listProductsResponse', result.data, result.isError);
+        }
+
+        async function restoreProduct() {
+            const id = document.getElementById('manageProdId').value;
+            if (!id) return alert('Product ID required');
+            const result = await apiCall(`/admin/products/${id}/restore`, 'POST');
+            displayResponse('listProductsResponse', result.data, result.isError);
+        }
+
+        // --- Public ---
+        async function getMarketProducts() {
+            const id = document.getElementById('publicMarketId').value;
+            const result = await apiCall(`/public/markets/${id}/products`);
+            displayResponse('publicMarketResponse', result.data, result.isError);
+        }
+
+        async function getPublicProduct() {
+            const id = document.getElementById('publicProdId').value;
+            const result = await apiCall(`/public/products/${id}`);
+            displayResponse('publicProdResponse', result.data, result.isError);
+        }
+
+        async function getAllPublicProducts() {
+            const result = await apiCall(`/public/products`);
+            displayResponse('publicProdResponse', result.data, result.isError);
+        }
+
+        async function getAllCategoriesPublic() {
+            // Assuming public endpoint exists, or we use admin for now if protected?
+            // Usually catalog categories are public. 
+            // Let's assume /utc/categories exists or we need to add it?
+            // Checking routes... we didn't add public categories route.
+            // Fallback to admin route for test or alert
+            const result = await apiCall('/admin/categories'); // Auth scope allows?
+            displayResponse('publicMarketResponse', result.data, result.isError);
+        }
+
+
+
+        // --- Context Selectors ---
+        async function loadAllMarkets() {
+            // Using public endpoint as it's easiest to list all
+            const result = await apiCall('/public/markets'); // Assuming this exists or similar
+            // Wait, /public/markets needs check. Admin usually has /admin/markets. 
+            // Let's try /admin/markets if authenticated as admin, else public.
+            // Actually, we don't have a direct "list all markets" in the code snippets viewed?
+            // Let's assume /uta/markets exists or use a known one. 
+            // Re-checking... Public has /markets/:id/products. 
+            // Let's try /uta/markets/ (Admin)
+
+            // To be safe, let's just fetch from a likely endpoint.
+            // If /uta/markets doesn't exist, we might need to add it or use hardcoded/manual entry fallback.
+            // Let's assume we can list them.
+
+            // NOTE: For now, if this fails, user might need to check Console.
+            const res = await apiCall('/public/markets');
+            const select = document.getElementById('ctxMarket');
+            select.innerHTML = '<option value="">-- Select Market --</option>';
+
+            if (res.data && res.data.data) {
+                res.data.data.forEach(m => {
+                    select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+                });
+            } else {
+                alert('Could not load markets. Ensure endpoint exists.');
+            }
+        }
+
+        async function loadBusinessesForContext() {
+            const marketId = document.getElementById('ctxMarket').value;
+            const select = document.getElementById('ctxBusiness');
+            const branchSelect = document.getElementById('ctxBranchId');
+
+            select.innerHTML = '<option value="">Loading...</option>';
+            select.disabled = true;
+            branchSelect.innerHTML = '<option value="">-- Select Business First --</option>';
+            branchSelect.disabled = true;
+
+            if (!marketId) return;
+
+            // Use Admin endpoint to get businesses in market
+            const result = await apiCall(`/admin/markets/${marketId}/businesses`);
+
+            select.innerHTML = '<option value="">-- Select Business --</option>';
+            if (result.data && result.data.data) {
+                result.data.data.forEach(b => {
+                    select.innerHTML += `<option value="${b.id}">${b.display_name}</option>`;
+                });
+                select.disabled = false;
+            }
+        }
+
+        async function loadBranchesForContext() {
+            const businessId = document.getElementById('ctxBusiness').value;
+            const select = document.getElementById('ctxBranchId');
+
+            select.innerHTML = '<option value="">Loading...</option>';
+            select.disabled = true;
+
+            if (!businessId) return;
+
+            // Use our NEW Admin endpoint
+            const result = await apiCall(`/admin/businesses/${businessId}/branches`);
+
+            select.innerHTML = '<option value="">-- Select Branch --</option>';
+            if (result.data && result.data.data) {
+                result.data.data.forEach(b => {
+                    select.innerHTML += `<option value="${b.id}">${b.name} (${b.address})</option>`;
+                });
+                select.disabled = false;
+            }
+        }
+
+        // NEW: For Business Users (UTB) to load their own branches directly
+        async function loadMyBranches() {
+            const select = document.getElementById('ctxBranchId');
+            select.innerHTML = '<option value="">Loading...</option>';
+            select.disabled = true;
+
+            // Use Business endpoint
+            const result = await apiCall('/utb/branches');
+
+            select.innerHTML = '<option value="">-- Select My Branch --</option>';
+            if (result.data && result.data.data) {
+                result.data.data.forEach(b => {
+                    select.innerHTML += `<option value="${b.id}">${b.name} (${b.address})</option>`;
+                });
+                select.disabled = false;
+            } else {
+                select.innerHTML = '<option value="">No Branches Found</option>';
+            }
+        }
+
+
+        function setBranchContext() {
+            const id = document.getElementById('ctxBranchId').value;
+            document.getElementById('activeBranchDisplay').innerText = id || 'None';
+        }
+
+    </script>
+</body>
+
+</html>

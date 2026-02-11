@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Management - Test Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            max-width: 1400px;
+            margin: auto;
+            background: #f4f7f6;
+            color: #333;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #2c3e50;
+        }
+
+        h1 {
+            border-bottom: 3px solid #34495e;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Persona Colors */
+        .uta-section {
+            border-top: 6px solid #e74c3c;
+        }
+
+        /* Admin Red */
+        .utb-section {
+            border-top: 6px solid #2ecc71;
+        }
+
+        /* Business Green */
+        .utd-section {
+            border-top: 6px solid #3498db;
+        }
+
+        /* Rider Blue */
+        .auth-section {
+            border-top: 6px solid #9b59b6;
+        }
+
+        /* Auth Purple */
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            cursor: pointer;
+            background: #34495e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button.success {
+            background: #27ae60;
+        }
+
+        button.danger {
+            background: #c0392b;
+        }
+
+        button.info {
+            background: #2980b9;
+        }
+
+        pre {
+            background: #2d3436;
+            color: #dfe6e9;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 400px;
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🏍️ Rider Management - Unified Command Center</h1>
+
+    <!-- AUTHENTICATION -->
+    <div class="section auth-section">
+        <h2>🔐 Global Identity (Universal Sign-In)</h2>
+        <div class="grid-2">
+            <div>
+                <label>Email (Rider/Admin/Business)</label>
+                <input type="email" id="authEmail" value="rider@test.com">
+                <label>App Scope (Header: x-app-type)</label>
+                <select id="authScope">
+                    <option value="uta">UTA (System Admin)</option>
+                    <option value="utb">UTB (Business/Store)</option>
+                    <option value="utd" selected>UTD (Rider App)</option>
+                </select>
+                <div class="grid-2">
+                    <button onclick="sendOtp()">1. Send OTP</button>
+                    <button class="info" onclick="togglePasswordLogin()">Login with Password</button>
+                </div>
+                <div id="otpDiv" style="display:none; margin-top:10px;">
+                    <input type="text" id="otpCode" placeholder="Enter 6-digit code">
+                    <button class="success" onclick="verifyOtp()">2. Authenticate</button>
+                </div>
+                <div id="passwordSection"
+                    style="display:none; margin-top:15px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <label>Password</label>
+                    <input type="password" id="authPassword" value="password123">
+                    <button class="success" onclick="loginWithPassword()">Login</button>
+                </div>
+            </div>
+            <div>
+                <div id="tokenPanel"
+                    style="display:none; word-break:break-all; font-family:monospace; background:#ecf0f1; padding:10px; border-radius:6px; font-size:11px;">
+                    <strong>JWT:</strong> <span id="tokenString"></span>
+                </div>
+                <div id="authRes" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIDER SELF-SERVICE (UTD) -->
+    <div class="section utd-section">
+        <h2>🏍️ Rider: Profile & Operations (UTD)</h2>
+        <div class="grid-2">
+            <div>
+                <h3>1. Management Profile</h3>
+                <button onclick="getRiderProfile()">Fetch My Details</button>
+                <div style="margin-top:15px;">
+                    <label>Full Name</label>
+                    <input type="text" id="riderName">
+                    <label>Vehicle Type</label>
+                    <select id="riderVehicle">
+                        <option value="bicycle">Bicycle</option>
+                        <option value="bike">Motorcycle (Fuel)</option>
+                        <option value="ev">Electric Vehicle</option>
+                    </select>
+                    <label>License Number</label>
+                    <input type="text" id="riderDL" placeholder="DL-1234567890">
+                    <button class="success" onclick="updateRiderProfile()">Sync Profile</button>
+                </div>
+            </div>
+            <div>
+                <h3>2. Operational Status</h3>
+                <div style="background: #fdfefe; border: 1px solid #eee; padding: 15px; border-radius: 8px;">
+                    <label>Current Mode</label>
+                    <div class="grid-2">
+                        <button class="success" onclick="setStatus('online')">GO ONLINE 🟢</button>
+                        <button class="danger" onclick="setStatus('offline')">GO OFFLINE 🔴</button>
+                    </div>
+                </div>
+                <div style="margin-top:15px;">
+                    <h3>3. Live GPS Simulation</h3>
+                    <div class="grid-2">
+                        <input type="text" id="lat" placeholder="Latitude (e.g. 28.6139)">
+                        <input type="text" id="lng" placeholder="Longitude (e.g. 77.2090)">
+                    </div>
+                    <button class="info" style="width:100%" onclick="updateLocation()">Broadcast GPS</button>
+                </div>
+                <div id="utdRes" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN CONTROLS (UTA) -->
+    <div class="section uta-section">
+        <h2>🛡️ Admin: Fleet Oversight (UTA)</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Fleet Discovery</h3>
+                <button onclick="listFleet()">View All Riders</button>
+                <div style="margin-top:20px;">
+                    <label>Target Rider ID</label>
+                    <input type="text" id="targetRiderId" placeholder="UUID">
+                    <label>KYC Decision</label>
+                    <div class="grid-2">
+                        <button class="success" onclick="verifyRider('approved')">Approve Rider</button>
+                        <button class="danger" onclick="verifyRider('rejected')">Reject / Flag</button>
+                    </div>
+                    <textarea id="kycRemarks" placeholder="Internal remarks..."
+                        style="height:60px; margin-top:10px;"></textarea>
+                </div>
+            </div>
+            <div>
+                <h3>Security Audits</h3>
+                <button onclick="viewAccessLogs()">View Privacy Logs</button>
+                <div id="utaRes" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BUSINESS VIEW (UTB) -->
+    <div class="section utb-section">
+        <h2>🏪 Business: Delivery Coordination (UTB)</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Pickup Lookup</h3>
+                <p style="font-size:12px; color:#666;">View incoming rider details for coordinates.</p>
+                <label>Arrival Rider ID</label>
+                <input type="text" id="utbLookupId" placeholder="UUID">
+                <button class="info" onclick="lookupRider()">Lookup for Handoff</button>
+            </div>
+            <div>
+                <div id="utbRes" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:4000/api';
+        let TOKEN = '';
+
+        function log(id, data) {
+            document.getElementById(id).innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+
+        async function request(path, method = 'GET', body = null) {
+            const scope = document.getElementById('authScope').value;
+            const headers = { 'Content-Type': 'application/json', 'x-app-type': scope };
+            if (TOKEN) headers['Authorization'] = `Bearer ${TOKEN}`;
+
+            const res = await fetch(`${API}${path}`, {
+                method, headers, body: body ? JSON.stringify(body) : null
+            });
+            return await res.json();
+        }
+
+        // AUTH
+        async function sendOtp() {
+            const email = document.getElementById('authEmail').value;
+            const data = await request('/auth/otp/send', 'POST', { email });
+            log('authRes', data);
+            if (data.success) document.getElementById('otpDiv').style.display = 'block';
+        }
+
+        async function verifyOtp() {
+            const email = document.getElementById('authEmail').value;
+            const otp = document.getElementById('otpCode').value;
+            const data = await request('/auth/otp/verify', 'POST', { email, otp });
+            if (data.accessToken) {
+                TOKEN = data.accessToken;
+                document.getElementById('tokenPanel').style.display = 'block';
+                document.getElementById('tokenString').innerText = TOKEN;
+            }
+            log('authRes', data);
+        }
+
+        function togglePasswordLogin() {
+            const el = document.getElementById('passwordSection');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+            document.getElementById('otpDiv').style.display = 'none';
+        }
+
+        async function loginWithPassword() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const data = await request('/auth/login', 'POST', { email, password });
+            if (data.accessToken) {
+                TOKEN = data.accessToken;
+                document.getElementById('tokenPanel').style.display = 'block';
+                document.getElementById('tokenString').innerText = TOKEN;
+            }
+            log('authRes', data);
+        }
+
+        // UTD
+        async function getRiderProfile() {
+            const data = await request('/utd/profile');
+            if (data.user_id) {
+                document.getElementById('riderName').value = data.name || '';
+                document.getElementById('riderVehicle').value = data.vehicle_type || 'bike';
+                document.getElementById('riderDL').value = data.driving_license_number || '';
+                document.getElementById('targetRiderId').value = data.user_id;
+                document.getElementById('utbLookupId').value = data.user_id;
+            }
+            log('utdRes', data);
+        }
+
+        async function updateRiderProfile() {
+            const body = {
+                name: document.getElementById('riderName').value,
+                vehicle_type: document.getElementById('riderVehicle').value,
+                driving_license_number: document.getElementById('riderDL').value
+            };
+            log('utdRes', await request('/utd/profile', 'PATCH', body));
+        }
+
+        async function setStatus(status) {
+            log('utdRes', await request('/utd/status', 'PATCH', { status }));
+        }
+
+        async function updateLocation() {
+            const body = {
+                latitude: parseFloat(document.getElementById('lat').value),
+                longitude: parseFloat(document.getElementById('lng').value)
+            };
+            log('utdRes', await request('/utd/location', 'POST', body));
+        }
+
+        // UTA
+        async function listFleet() {
+            log('utaRes', await request('/admin/riders'));
+        }
+
+        async function verifyRider(status) {
+            const id = document.getElementById('targetRiderId').value;
+            const body = { kyc_status: status, remarks: document.getElementById('kycRemarks').value };
+            log('utaRes', await request(`/admin/riders/${id}/verify`, 'POST', body));
+        }
+
+        async function viewAccessLogs() {
+            const id = document.getElementById('targetRiderId').value;
+            log('utaRes', await request(`/admin/riders/${id}/logs`));
+        }
+
+        // UTB
+        async function lookupRider() {
+            const id = document.getElementById('utbLookupId').value;
+            log('utbRes', await request(`/utb/riders/${id}`));
+        }
+    </script>
+</body>
+
+</html>

@@ -1,5 +1,5 @@
 import express from 'express';
-import BranchController from '../../controllers/business/BranchController.js';
+import BranchController from '../../controllers/BranchController.js';
 import { authenticate } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();

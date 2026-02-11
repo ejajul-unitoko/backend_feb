@@ -27,13 +27,13 @@ CREATE TABLE IF NOT EXISTS branch_users (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_branch_users_branch_id ON branch_users(branch_id);
-CREATE INDEX idx_branch_users_user_id ON branch_users(user_id);
-CREATE INDEX idx_branch_users_role ON branch_users(role);
-CREATE INDEX idx_branch_users_status ON branch_users(status);
+CREATE INDEX IF NOT EXISTS idx_branch_users_branch_id ON branch_users(branch_id);
+CREATE INDEX IF NOT EXISTS idx_branch_users_user_id ON branch_users(user_id);
+CREATE INDEX IF NOT EXISTS idx_branch_users_role ON branch_users(role);
+CREATE INDEX IF NOT EXISTS idx_branch_users_status ON branch_users(status);
 
 -- Composite index for common query pattern
-CREATE INDEX idx_branch_users_branch_status ON branch_users(branch_id, status);
+CREATE INDEX IF NOT EXISTS idx_branch_users_branch_status ON branch_users(branch_id, status);
 
 -- Comments for documentation
 COMMENT ON TABLE branch_users IS 'Manages user access to branches (delegated access for managers/staff)';

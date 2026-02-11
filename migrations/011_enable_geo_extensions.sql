@@ -1,0 +1,2 @@
+-- Migration: Enable Geolocation Extensions
+-- Description: EXTENSIONS REMOVED (User request) - Keeping file for migration history consistency

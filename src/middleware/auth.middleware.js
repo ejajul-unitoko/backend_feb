@@ -13,6 +13,7 @@ export const authenticate = async (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded; // Attach { userId, ... } to request
+        req.user.id = decoded.userId; // Alias for consistency across controllers
 
         // Hydrate Permissions based on App Scope
         const scope = req.headers['x-app-type'];

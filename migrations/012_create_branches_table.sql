@@ -33,16 +33,12 @@ CREATE TABLE IF NOT EXISTS branches (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_branches_business_id ON branches(business_id);
-CREATE INDEX idx_branches_status ON branches(status);
-CREATE INDEX idx_branches_is_primary ON branches(is_primary) WHERE is_primary = true;
+CREATE INDEX IF NOT EXISTS idx_branches_business_id ON branches(business_id);
+CREATE INDEX IF NOT EXISTS idx_branches_status ON branches(status);
+CREATE INDEX IF NOT EXISTS idx_branches_is_primary ON branches(is_primary) WHERE is_primary = true;
 
--- Geospatial index for location-based queries (future use)
--- Note: Commented out because earth type visibility issues in migration transactions
--- You can create this index manually after migrations complete:
--- CREATE INDEX idx_branches_location ON branches USING gist(
---     ll_to_earth(latitude, longitude)
--- ) WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+-- Basic index for location queries (alternative to earthdistance)
+CREATE INDEX IF NOT EXISTS idx_branches_geo ON branches(latitude, longitude);
 
 -- Comments for documentation
 COMMENT ON TABLE branches IS 'Stores branch/location data for businesses';

@@ -284,8 +284,33 @@
         <label>GSTIN (15 chars, optional):</label>
         <input type="text" id="gstin" value="22ABCDE1234F1Z5" maxlength="15">
 
-        <label>Registered Address:</label>
-        <textarea id="registeredAddress" rows="3">123 Test Street, Delhi, 110001</textarea>
+        <label>Address Line 1:</label>
+        <input type="text" id="regAddrLine1" value="123 Test Street">
+
+        <label>Address Line 2 (optional):</label>
+        <input type="text" id="regAddrLine2" placeholder="Suite/Unit">
+
+        <div class="grid">
+            <div>
+                <label>City:</label>
+                <input type="text" id="regCity" value="Delhi">
+            </div>
+            <div>
+                <label>Pincode:</label>
+                <input type="text" id="regPincode" value="110001" maxlength="6">
+            </div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <label>State:</label>
+                <input type="text" id="regState" value="Delhi">
+            </div>
+            <div>
+                <label>Country:</label>
+                <input type="text" id="regCountry" value="India">
+            </div>
+        </div>
 
         <label>Market IDs (comma-separated UUIDs, optional):</label>
         <input type="text" id="marketIds" placeholder="uuid1,uuid2,uuid3">
@@ -334,8 +359,19 @@
         <label>Branch Name:</label>
         <input type="text" id="branchName" value="Main Branch">
 
-        <label>Address:</label>
-        <textarea id="branchAddress" rows="3">456 Branch Street, Delhi, 110002</textarea>
+        <label>Address Line 1:</label>
+        <input type="text" id="branchAddrLine1" value="456 Branch Street">
+
+        <div class="grid">
+            <div>
+                <label>City:</label>
+                <input type="text" id="branchCity" value="Delhi">
+            </div>
+            <div>
+                <label>Pincode:</label>
+                <input type="text" id="branchPincode" value="110002" maxlength="6">
+            </div>
+        </div>
 
         <label>Latitude (optional):</label>
         <input type="text" id="branchLat" placeholder="28.6139">
@@ -419,6 +455,18 @@
         <input type="text" id="revokeUserId" placeholder="Branch User UUID">
         <button class="danger" onclick="revokeUser()">Revoke Access</button>
         <div id="revokeUserResponse" class="response"></div>
+
+        <h3>Reactivate User Access</h3>
+        <label>Branch User ID:</label>
+        <input type="text" id="reactivateUserId" placeholder="Branch User UUID">
+        <button class="success" onclick="reactivateUser()">Reactivate Access</button>
+        <div id="reactivateUserResponse" class="response"></div>
+
+        <h3>Delete User Assignment</h3>
+        <label>Branch User ID:</label>
+        <input type="text" id="deleteUserId" placeholder="Branch User UUID">
+        <button class="danger" onclick="deleteUser()">Delete User</button>
+        <div id="deleteUserResponse" class="response"></div>
     </div>
 
     <!-- UTA: Admin Business Management -->
@@ -498,6 +546,7 @@
     <script>
         const API_BASE = 'http://localhost:4000/api';
         let authToken = '';
+        let authScope = 'utb';
 
         // Helper function to display response
         function displayResponse(elementId, data, isError = false) {
@@ -516,6 +565,7 @@
 
             if (useAuth && authToken) {
                 options.headers['Authorization'] = `Bearer ${authToken}`;
+                options.headers['x-app-type'] = authScope;
             }
 
             if (body) {
@@ -577,6 +627,7 @@
 
                 if (response.ok && data.accessToken) {
                     authToken = data.accessToken;
+                    authScope = scope; // Update scope based on login
 
                     // Check if profile is complete
                     if (data.is_profile_complete === false) {
@@ -682,6 +733,7 @@
 
                 if (response.ok && data.accessToken) {
                     authToken = data.accessToken;
+                    authScope = scope; // Update scope based on login
                     document.getElementById('tokenDisplay').style.display = 'block';
                     document.getElementById('tokenValue').textContent = authToken;
                     document.getElementById('passwordSection').style.display = 'none';
@@ -708,7 +760,14 @@
                 business_type: document.getElementById('businessType').value,
                 pan: document.getElementById('pan').value,
                 gstin: document.getElementById('gstin').value || null,
-                registered_address: document.getElementById('registeredAddress').value,
+                registered_address: {
+                    address_line_1: document.getElementById('regAddrLine1').value,
+                    address_line_2: document.getElementById('regAddrLine2').value,
+                    city: document.getElementById('regCity').value,
+                    state: document.getElementById('regState').value,
+                    country: document.getElementById('regCountry').value,
+                    pincode: document.getElementById('regPincode').value
+                },
                 market_ids: marketIds.length > 0 ? marketIds : undefined
             });
 
@@ -749,7 +808,13 @@
             const result = await apiCall('/utb/branches', 'POST', {
                 business_id: document.getElementById('branchBusinessId').value,
                 name: document.getElementById('branchName').value,
-                address: document.getElementById('branchAddress').value,
+                address: {
+                    address_line_1: document.getElementById('branchAddrLine1').value,
+                    city: document.getElementById('branchCity').value,
+                    state: 'Delhi', // Defaulting for simplicity in UI, can add field
+                    country: 'India',
+                    pincode: document.getElementById('branchPincode').value
+                },
                 latitude: lat ? parseFloat(lat) : null,
                 longitude: lon ? parseFloat(lon) : null
             });
@@ -814,6 +879,20 @@
             displayResponse('revokeUserResponse', result.data, result.isError);
         }
 
+        async function reactivateUser() {
+            const branchUserId = document.getElementById('reactivateUserId').value;
+            const result = await apiCall(`/utb/branch-users/${branchUserId}/activate`, 'PATCH');
+            displayResponse('reactivateUserResponse', result.data, result.isError);
+        }
+
+        async function deleteUser() {
+            const branchUserId = document.getElementById('deleteUserId').value;
+            if (!confirm('Are you sure you want to delete this user assignment? This action cannot be undone.')) return;
+
+            const result = await apiCall(`/utb/branch-users/${branchUserId}`, 'DELETE');
+            displayResponse('deleteUserResponse', result.data, result.isError);
+        }
+
         // UTA: Admin Business Management
         async function getAllBusinesses() {
             const kycStatus = document.getElementById('adminKycFilter').value;
@@ -864,6 +943,35 @@
             const query = document.getElementById('searchQuery').value;
             const result = await apiCall(`/admin/businesses/search?q=${encodeURIComponent(query)}`);
             displayResponse('searchBusinessesResponse', result.data, result.isError);
+        }
+
+        // UTA: Admin Branch User Management
+        async function adminGetBranchUsers() {
+            const branchId = document.getElementById('adminGetBranchUsersId').value;
+            const result = await apiCall(`/uta/branches/${branchId}/users`);
+            displayResponse('adminGetBranchUsersResponse', result.data, result.isError);
+        }
+
+        async function adminRevokeUser() {
+            const branchUserId = document.getElementById('adminRevokeUserId').value;
+            if (!confirm('Are you sure you want to revoke this user\'s access (Admin)?')) return;
+
+            const result = await apiCall(`/uta/branch-users/${branchUserId}/revoke`, 'PATCH');
+            displayResponse('adminRevokeUserResponse', result.data, result.isError);
+        }
+
+        async function adminReactivateUser() {
+            const branchUserId = document.getElementById('adminReactivateUserId').value;
+            const result = await apiCall(`/uta/branch-users/${branchUserId}/activate`, 'PATCH');
+            displayResponse('adminReactivateUserResponse', result.data, result.isError);
+        }
+
+        async function adminDeleteUser() {
+            const branchUserId = document.getElementById('adminDeleteUserId').value;
+            if (!confirm('Are you sure you want to delete this user assignment (Admin)? This action cannot be undone.')) return;
+
+            const result = await apiCall(`/uta/branch-users/${branchUserId}`, 'DELETE');
+            displayResponse('adminDeleteUserResponse', result.data, result.isError);
         }
     </script>
 </body>

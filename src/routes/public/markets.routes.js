@@ -1,5 +1,5 @@
 import express from 'express';
-import MarketController from '../../controllers/public/MarketController.js';
+import MarketController from '../../controllers/MarketController.js';
 
 const router = express.Router();
 

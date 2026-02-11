@@ -38,14 +38,14 @@ CREATE TABLE IF NOT EXISTS businesses (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_businesses_owner_user_id ON businesses(owner_user_id);
-CREATE INDEX idx_businesses_kyc_status ON businesses(kyc_status);
-CREATE INDEX idx_businesses_status ON businesses(status);
-CREATE INDEX idx_businesses_created_at ON businesses(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_businesses_owner_user_id ON businesses(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_businesses_kyc_status ON businesses(kyc_status);
+CREATE INDEX IF NOT EXISTS idx_businesses_status ON businesses(status);
+CREATE INDEX IF NOT EXISTS idx_businesses_created_at ON businesses(created_at DESC);
 
 -- Index for searching by business name
-CREATE INDEX idx_businesses_legal_name ON businesses USING gin(to_tsvector('english', legal_name));
-CREATE INDEX idx_businesses_display_name ON businesses USING gin(to_tsvector('english', display_name));
+CREATE INDEX IF NOT EXISTS idx_businesses_legal_name ON businesses USING gin(to_tsvector('english', legal_name));
+CREATE INDEX IF NOT EXISTS idx_businesses_display_name ON businesses USING gin(to_tsvector('english', display_name));
 
 -- Comments for documentation
 COMMENT ON TABLE businesses IS 'Stores business registration data for UTB (Business Owners)';

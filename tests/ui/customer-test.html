@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management - Test Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            max-width: 1400px;
+            margin: auto;
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #1a73e8;
+        }
+
+        h1 {
+            border-bottom: 3px solid #1a73e8;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            font-size: 22px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Persona Accents */
+        .uta-section {
+            border-top: 6px solid #d93025;
+        }
+
+        /* Admin Red */
+        .utb-section {
+            border-top: 6px solid #188038;
+        }
+
+        /* Business Green */
+        .utc-section {
+            border-top: 6px solid #f9ab00;
+        }
+
+        /* Customer Orange */
+        .auth-section {
+            border-top: 6px solid #a142f4;
+        }
+
+        /* Auth Purple */
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin-bottom: 5px;
+        }
+
+        button:hover {
+            background: #1557b0;
+        }
+
+        button.secondary {
+            background: #5f6368;
+        }
+
+        button.secondary:hover {
+            background: #3c4043;
+        }
+
+        button.success {
+            background: #188038;
+        }
+
+        button.danger {
+            background: #d93025;
+        }
+
+        pre {
+            background: #202124;
+            color: #e8eaed;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            max-height: 400px;
+        }
+
+        .token-display {
+            background: #e8f0fe;
+            color: #1967d2;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            word-break: break-all;
+            border: 1px solid #d2e3fc;
+            margin-top: 10px;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>👥 Customer Management - World Class Terminal</h1>
+
+    <!-- 1. AUTHENTICATION HUB -->
+    <div class="section auth-section">
+        <h2>🔐 Access Control (Universal Login)</h2>
+        <div class="grid-2">
+            <div>
+                <label>Email Address</label>
+                <input type="email" id="authEmail" value="customer@test.com">
+                <label>Persona (Header: x-app-type)</label>
+                <select id="authScope">
+                    <option value="uta">UTA (System Admin)</option>
+                    <option value="utb">UTB (Business/Branch)</option>
+                    <option value="utc" selected>UTC (Customer)</option>
+                    <option value="utd">UTD (Delivery Partner)</option>
+                </select>
+                <div class="grid-2">
+                    <button onclick="sendOtp()">1. Send OTP</button>
+                    <button class="secondary" onclick="togglePassword()">Login with Password</button>
+                </div>
+
+                <div id="otpInputDiv"
+                    style="display:none; margin-top:15px; background: #fdf2f2; padding:15px; border-radius:8px;">
+                    <label>Enter 6-Digit OTP</label>
+                    <input type="text" id="otpCode" placeholder="Look at console/db">
+                    <button class="success" onclick="verifyOtp()">2. Verify & Access</button>
+                </div>
+
+                <div id="passwordInputDiv" style="display:none; margin-top:15px;">
+                    <label>Password</label>
+                    <input type="password" id="authPassword">
+                    <button class="success" onclick="loginPassword()">Login</button>
+                </div>
+            </div>
+            <div>
+                <h3>Session Profile</h3>
+                <div id="sessionDisplay" class="token-display" style="display:none;">
+                    <strong>JWT:</strong> <span id="jwtValue"></span>
+                </div>
+                <div id="authRes" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. CUSTOMER PERSPECTIVE (UTC) -->
+    <div class="section utc-section">
+        <h2>🟪 Customer: My Profile & Security (UTC)</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Manage Profile</h3>
+                <button onclick="getUtcProfile()">Fetch My Profile</button>
+                <div style="margin-top:15px;">
+                    <label>Display Name</label>
+                    <input type="text" id="utcName" placeholder="Update Name">
+                    <label>Gender</label>
+                    <select id="utcGender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <label>Language</label>
+                    <input type="text" id="utcLang" value="en">
+                    <button class="success" onclick="updateUtcProfile()">Update Profile</button>
+                </div>
+            </div>
+            <div>
+                <h3>Addresses (Home/Work)</h3>
+                <button class="secondary" onclick="getUtcAddresses()">Load Saved Addresses</button>
+                <div style="margin-top:15px; background: #fff8e1; padding:15px; border-radius:8px;">
+                    <label>Address Label</label>
+                    <select id="addrLabel">
+                        <option value="Home">Home</option>
+                        <option value="Work">Work</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <label>Address Line 1</label>
+                    <input type="text" id="addrLine1" placeholder="Flat, Street">
+                    <label>Pincode</label>
+                    <input type="text" id="addrPin" placeholder="110001">
+                    <button class="success" onclick="addUtcAddress()">+ Add New Address</button>
+                </div>
+                <div id="utcRes" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. BUSINESS PERSPECTIVE (UTB) -->
+    <div class="section utb-section">
+        <h2>🟨 Business: Customer Lookup for Orders (UTB)</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Audit-Safe PII Access</h3>
+                <p style="font-size:12px; color:#666;">Businesses can only see customer details if there is an active
+                    order context.</p>
+                <label>Customer ID (to lookup)</label>
+                <input type="text" id="utbCustId" placeholder="UUID">
+                <label>Active Order ID (Context)</label>
+                <input type="text" id="utbOrderId" placeholder="Order UUID">
+                <label>Your Branch ID</label>
+                <input type="text" id="utbBranchId" placeholder="Branch UUID">
+                <button class="success" onclick="lookupCustomerPII()">Fetch PII (Logged)</button>
+            </div>
+            <div>
+                <div id="utbRes" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. ADMIN PERSPECTIVE (UTA) -->
+    <div class="section uta-section">
+        <h2>🟦 Admin: Oversight & Audits (UTA)</h2>
+        <div class="grid-2">
+            <div>
+                <h3>Database Management</h3>
+                <button onclick="listAllCustomers()">List All Customers</button>
+                <div style="margin-top:15px;">
+                    <label>Target Customer ID</label>
+                    <input type="text" id="utaCustId" placeholder="UUID">
+                    <div class="grid-2">
+                        <button class="info" onclick="getCustomerLogs()">View Privacy Logs</button>
+                        <button class="danger" onclick="suspendCustomer()">Suspend User</button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div id="utaRes" class="response"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = 'http://localhost:4000/api';
+        let TOKEN = '';
+
+        function log(id, data) {
+            const el = document.getElementById(id);
+            el.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+
+        async function request(path, method = 'GET', body = null) {
+            const scope = document.getElementById('authScope').value;
+            const headers = {
+                'Content-Type': 'application/json',
+                'x-app-type': scope
+            };
+            if (TOKEN) headers['Authorization'] = `Bearer ${TOKEN}`;
+
+            const res = await fetch(`${API}${path}`, {
+                method,
+                headers,
+                body: body ? JSON.stringify(body) : null
+            });
+            return await res.json();
+        }
+
+        // --- AUTH ---
+        async function sendOtp() {
+            const email = document.getElementById('authEmail').value;
+            const data = await request('/auth/otp/send', 'POST', { email });
+            log('authRes', data);
+            if (data.success) document.getElementById('otpInputDiv').style.display = 'block';
+        }
+
+        async function verifyOtp() {
+            const email = document.getElementById('authEmail').value;
+            const otp = document.getElementById('otpCode').value;
+            const data = await request('/auth/otp/verify', 'POST', { email, otp });
+            if (data.accessToken) {
+                TOKEN = data.accessToken;
+                document.getElementById('sessionDisplay').style.display = 'block';
+                document.getElementById('jwtValue').innerText = TOKEN.substring(0, 40) + '...';
+            }
+            log('authRes', data);
+        }
+
+        function togglePassword() {
+            const el = document.getElementById('passwordInputDiv');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function loginPassword() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const data = await request('/auth/login', 'POST', { email, password });
+            if (data.accessToken) {
+                TOKEN = data.accessToken;
+                document.getElementById('sessionDisplay').style.display = 'block';
+                document.getElementById('jwtValue').innerText = TOKEN.substring(0, 40) + '...';
+            }
+            log('authRes', data);
+        }
+
+        // --- UTC ---
+        async function getUtcProfile() {
+            const data = await request('/utc/profile');
+            if (data.name) {
+                document.getElementById('utcName').value = data.name;
+                document.getElementById('utbCustId').value = data.id;
+                document.getElementById('utaCustId').value = data.id;
+            }
+            log('utcRes', data);
+        }
+
+        async function updateUtcProfile() {
+            const body = {
+                name: document.getElementById('utcName').value,
+                gender: document.getElementById('utcGender').value,
+                preferred_language: document.getElementById('utcLang').value
+            };
+            const data = await request('/utc/profile', 'PATCH', body);
+            log('utcRes', data);
+        }
+
+        async function getUtcAddresses() {
+            const data = await request('/utc/addresses');
+            log('utcRes', data);
+        }
+
+        async function addUtcAddress() {
+            const body = {
+                label: document.getElementById('addrLabel').value,
+                address_line_1: document.getElementById('addrLine1').value,
+                pincode: document.getElementById('addrPin').value,
+                purpose: 'customer_delivery',
+                city: 'Delhi',
+                state: 'Delhi'
+            };
+            const data = await request('/utc/addresses', 'POST', body);
+            log('utcRes', data);
+        }
+
+        // --- UTB ---
+        async function lookupCustomerPII() {
+            const custId = document.getElementById('utbCustId').value;
+            const orderId = document.getElementById('utbOrderId').value;
+            const branchId = document.getElementById('utbBranchId').value;
+            const data = await request(`/utb/orders/${orderId}/customer/${custId}?branchId=${branchId}`);
+            log('utbRes', data);
+        }
+
+        // --- UTA ---
+        async function listAllCustomers() {
+            const data = await request('/admin/customers');
+            log('utaRes', data);
+        }
+
+        async function getCustomerLogs() {
+            const custId = document.getElementById('utaCustId').value;
+            const data = await request(`/admin/customers/${custId}/logs`);
+            log('utaRes', data);
+        }
+
+        async function suspendCustomer() {
+            const custId = document.getElementById('utaCustId').value;
+            // Proposed endpoint logic
+            alert('Calling suspension logic for: ' + custId);
+        }
+    </script>
+</body>
+
+</html>

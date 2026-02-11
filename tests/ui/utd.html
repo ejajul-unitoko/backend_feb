@@ -1,17 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UTD - Rider Flow</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; border-top: 5px solid #28a745; }
-        .step { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        .hidden { display: none; }
-        code { background: #eee; padding: 2px 5px; }
-        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; }
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            border-top: 5px solid #28a745;
+        }
+
+        .step {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        code {
+            background: #eee;
+            padding: 2px 5px;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+        }
     </style>
 </head>
+
 <body>
     <h1>🛵 UTD (Rider) Flow</h1>
     <p>Scope: <code>utd</code> (Public Registration -> Profile Completion)</p>
@@ -19,18 +45,24 @@
     <!-- STEP 1 -->
     <div id="step1" class="step">
         <h3>Step 1: Register / Login</h3>
-        <input type="email" id="email" placeholder="Enter your email" value="rider@unitoko.com" style="width: 100%; padding: 8px;">
+        <input type="email" id="email" placeholder="Enter your email" value="rider@unitoko.com"
+            style="width: 100%; padding: 8px;">
         <br><br>
         <button onclick="sendOtp()">Send OTP</button>
-        <button onclick="showPasswordLogin()" style="margin-left: 10px; background: #17a2b8; color: white; border: none; cursor: pointer;">Login with Password</button>
-        <button onclick="showResetFlow()" style="margin-left: 10px; background: #f8f9fa; border: 1px solid #ddd; cursor: pointer;">Forgot Password?</button>
+        <button onclick="showPasswordLogin()"
+            style="margin-left: 10px; background: #17a2b8; color: white; border: none; cursor: pointer;">Login with
+            Password</button>
+        <button onclick="showResetFlow()"
+            style="margin-left: 10px; background: #f8f9fa; border: 1px solid #ddd; cursor: pointer;">Forgot
+            Password?</button>
     </div>
 
     <!-- PASSWORD LOGIN -->
     <div id="stepPasswordLogin" class="step hidden" style="border-color: #17a2b8;">
         <h3>🔑 Login with Email & Password</h3>
         <input type="email" id="loginEmail" placeholder="Email" style="width: 100%; padding: 8px; margin-bottom: 5px;">
-        <input type="password" id="loginPassword" placeholder="Password" style="width: 100%; padding: 8px; margin-bottom: 5px;">
+        <input type="password" id="loginPassword" placeholder="Password"
+            style="width: 100%; padding: 8px; margin-bottom: 5px;">
         <br><br>
         <button onclick="loginWithPassword()">Login</button>
         <button onclick="hidePasswordLogin()" style="margin-left: 10px;">Cancel</button>
@@ -46,8 +78,10 @@
         </div>
         <div id="resetVerify" class="hidden">
             <input type="text" id="resetOtp" placeholder="OTP Code" style="width: 100%; margin-bottom: 5px;">
-            <input type="password" id="resetNewPass" placeholder="New Password" style="width: 100%; margin-bottom: 5px;">
-            <input type="password" id="resetConfirmPass" placeholder="Confirm Password" style="width: 100%; margin-bottom: 5px;">
+            <input type="password" id="resetNewPass" placeholder="New Password"
+                style="width: 100%; margin-bottom: 5px;">
+            <input type="password" id="resetConfirmPass" placeholder="Confirm Password"
+                style="width: 100%; margin-bottom: 5px;">
             <button onclick="submitResetPassword()">Set New Password</button>
         </div>
     </div>
@@ -57,7 +91,17 @@
         <h3>Step 2: Verify OTP</h3>
         <input type="text" id="otp" placeholder="Enter OTP" style="width: 100%; padding: 8px;">
         <br><br>
-        <button onclick="verifyOtp()">Login</button>
+        <button onclick="verifyOtp()">Verify OTP</button>
+    </div>
+
+    <!-- STEP 2.5: SET PASSWORD -->
+    <div id="stepSetPassword" class="step hidden">
+        <h3>Step 2.5: Set Password</h3>
+        <p>Enhance your security by setting a password.</p>
+        <input type="password" id="initialPassword" placeholder="Enter new password"
+            style="width: 100%; padding: 8px; margin-bottom: 10px;">
+        <button onclick="setInitialPassword()">Set Password</button>
+        <button onclick="skipPassword()" style="background: #6c757d; margin-left: 10px;">Skip for Now</button>
     </div>
 
     <!-- STEP 3 -->
@@ -67,10 +111,11 @@
         <div style="background: #e2e3e5; padding: 10px; margin-bottom: 10px;">
             ⚠️ Profile Incomplete. Please finish setup.
         </div>
-        
+
         <!-- AVATAR UPLOAD -->
         <div style="margin-bottom: 10px; text-align: center;">
-            <img id="avatarPreviewInit" src="" style="width: 80px; height: 80px; border-radius: 50%; background: #ddd; object-fit: cover;">
+            <img id="avatarPreviewInit" src=""
+                style="width: 80px; height: 80px; border-radius: 50%; background: #ddd; object-fit: cover;">
             <br>
             <input type="file" id="avatarInputInit" onchange="uploadAvatar('Init')">
             <input type="hidden" id="avatarUrlInit">
@@ -87,18 +132,19 @@
         <h3>🎉 Dashboard</h3>
         <p>Welcome, <span id="username">User</span>!</p>
         <p>Token: <code id="tokenDisplay">...</code></p>
-        
+
         <hr>
         <h4>🔐 Security Settings</h4>
         <h4>🔐 Security Settings</h4>
-        
+
         <!-- PROFILE EDITOR -->
         <div style="margin-bottom: 15px; padding: 10px; background: #fff; border: 1px solid #ddd;">
             <h5>👤 Edit Profile</h5>
             <div style="display: flex; align-items: center; margin-bottom: 10px;">
-                <img id="currentAvatar" src="" style="width: 60px; height: 60px; border-radius: 50%; background: #eee; margin-right: 10px; object-fit: cover;">
+                <img id="currentAvatar" src=""
+                    style="width: 60px; height: 60px; border-radius: 50%; background: #eee; margin-right: 10px; object-fit: cover;">
                 <div>
-                   <input type="file" id="avatarInputDash" onchange="uploadAvatar('Dash')">
+                    <input type="file" id="avatarInputDash" onchange="uploadAvatar('Dash')">
                 </div>
             </div>
             <input type="text" id="dashName" placeholder="Name" style="width: 100%; margin-bottom: 5px;">
@@ -130,6 +176,7 @@
         const API = 'http://localhost:4000/api/auth';
         const SCOPE = 'utd';
         let ACCESS_TOKEN = null;
+        let USER_DATA = null;
 
         function log(msg) {
             document.getElementById('log').textContent = JSON.stringify(msg, null, 2);
@@ -163,16 +210,12 @@
                 });
                 const data = await res.json();
                 log(data);
-                
+
                 if (res.ok) {
                     ACCESS_TOKEN = data.accessToken;
+                    USER_DATA = data; // Store globally for routing
                     document.getElementById('step2').classList.add('hidden');
-                    
-                    if (!data.is_profile_complete) {
-                        document.getElementById('step3').classList.remove('hidden');
-                    } else {
-                        showDashboard(data.user);
-                    }
+                    document.getElementById('stepSetPassword').classList.remove('hidden');
                 }
             } catch (err) { log(err); }
         }
@@ -185,7 +228,7 @@
             try {
                 const res = await fetch(`${API}/profile`, {
                     method: 'PUT',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${ACCESS_TOKEN}`,
                         'x-app-type': SCOPE
@@ -201,6 +244,42 @@
             } catch (err) { log(err); }
         }
 
+        async function setInitialPassword() {
+            const password = document.getElementById('initialPassword').value;
+            if (!password) return alert('Please enter a password');
+
+            try {
+                const res = await fetch(`${API}/password/set`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${ACCESS_TOKEN}`,
+                        'x-app-type': SCOPE
+                    },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+                log(data);
+                if (res.ok) {
+                    alert('Password set successfully!');
+                    continueToNextStep();
+                }
+            } catch (err) { log(err); }
+        }
+
+        function skipPassword() {
+            continueToNextStep();
+        }
+
+        function continueToNextStep() {
+            document.getElementById('stepSetPassword').classList.add('hidden');
+            if (USER_DATA && !USER_DATA.is_profile_complete) {
+                document.getElementById('step3').classList.remove('hidden');
+            } else if (USER_DATA) {
+                showDashboard(USER_DATA.user);
+            }
+        }
+
         function showDashboard(user) {
             document.getElementById('step1').classList.add('hidden');
             document.getElementById('step2').classList.add('hidden');
@@ -210,7 +289,7 @@
             document.getElementById('step4').classList.remove('hidden');
             document.getElementById('username').textContent = user.name || user.email;
             document.getElementById('tokenDisplay').textContent = ACCESS_TOKEN.substring(0, 20) + '...';
-            
+
             // Populate Dashboard Fields
             document.getElementById('dashName').value = user.name || '';
             document.getElementById('dashPhone').value = user.phone || '';
@@ -285,7 +364,7 @@
             const otp = document.getElementById('resetOtp').value;
             const newPassword = document.getElementById('resetNewPass').value;
             const confirmPassword = document.getElementById('resetConfirmPass').value;
-            
+
             try {
                 const res = await fetch(`${API}/password/reset`, {
                     method: 'POST',
@@ -306,8 +385,8 @@
             try {
                 const res = await fetch(`${API}/password/set`, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json', 
+                    headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${ACCESS_TOKEN}`,
                         'x-app-type': SCOPE
                     },
@@ -321,12 +400,12 @@
             const oldPassword = document.getElementById('oldPass').value;
             const newPassword = document.getElementById('newPass').value;
             const confirmPassword = document.getElementById('confirmPass').value;
-            
+
             try {
                 const res = await fetch(`${API}/password/change`, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json', 
+                    headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${ACCESS_TOKEN}`,
                         'x-app-type': SCOPE
                     },
@@ -346,7 +425,7 @@
             try {
                 const res = await fetch(`${API}/media/upload/avatar`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Authorization': `Bearer ${ACCESS_TOKEN}`,
                         'x-app-type': SCOPE
                     },
@@ -357,8 +436,8 @@
 
                 if (res.ok) {
                     if (suffix === 'Init') {
-                         document.getElementById('avatarUrlInit').value = data.url;
-                         document.getElementById('avatarPreviewInit').src = data.url;
+                        document.getElementById('avatarUrlInit').value = data.url;
+                        document.getElementById('avatarPreviewInit').src = data.url;
                     } else {
                         // For dashboard, maybe auto-save or just show preview? 
                         // Let's just show preview and require clicking "Update Profile"
@@ -366,7 +445,7 @@
                         // Store it temporarily or update immediately? 
                         // Let's update immediately for better UX or store in a hidden field?
                         // Actually, let's just save it.
-                         saveDashboardProfile(data.url);
+                        saveDashboardProfile(data.url);
                     }
                 }
             } catch (err) { log(err); }
@@ -378,11 +457,11 @@
             // If newAvatarUrl is passed, use it, otherwise keep existing (not easily accessible unless stored)
             // Ideally we fetch current user again or store current state.
             // Simplified: We rely on the input values.
-            
+
             // Hack for demo: If we just uploaded an avatar, we passed the URL. 
             // If not, we don't send avatar_url to avoid overwriting with null?
             // Our backend completeProfile merges? No, it updates.
-            
+
             const payload = { name, phone };
             if (newAvatarUrl) payload.avatar_url = newAvatarUrl;
 
@@ -397,10 +476,11 @@
                 if (res.ok) {
                     alert('Profile Updated!');
                     document.getElementById('username').textContent = data.user.name;
-                    if(data.user.avatar_url) document.getElementById('currentAvatar').src = data.user.avatar_url;
+                    if (data.user.avatar_url) document.getElementById('currentAvatar').src = data.user.avatar_url;
                 }
             } catch (err) { log(err); }
         }
     </script>
 </body>
+
 </html>
